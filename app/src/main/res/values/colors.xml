@@ -1,0 +1,44 @@
+<resources>
+
+    <!-- Primary Colors (Orange now) -->
+    <color name="purple_500">#FF9800</color>
+    <color name="purple_700">#F57C00</color>
+
+    <!-- Teal secondary (kept) -->
+    <color name="teal_200">#03DAC5</color>
+    <color name="teal_700">#018786</color>
+
+    <!-- Buttons (Orange) -->
+    <color name="button_primary">#FB8C00</color>
+
+    <!-- Light Mode Colors -->
+    <color name="light_background">#FFFFFF</color>
+    <color name="light_surface">#FFF3E0</color>
+    <color name="light_text_primary">#000000</color>
+    <color name="light_text_secondary">#555555</color>
+    <color name="text_hint">#999999</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+
+    <!-- Dark Mode Colors -->
+    <color name="dark_background">#121212</color>
+    <color name="dark_surface">#1E1E1E</color>
+    <color name="dark_text_primary">#FFFFFF</color>
+    <color name="dark_text_secondary">#B3B3B3</color>
+
+    <!-- Extra -->
+    <color name="primary_dark_blue">#E65100</color> <!-- dark orange -->
+    <color name="primary_blue">#FF9800</color>      <!-- main orange -->
+
+    <!-- MISSING COLORS (Fixed) -->
+    <color name="gray_medium">#808080</color>
+    <color name="background_light">#F5F5F5</color>
+    <color name="accent_blue">#FFA726</color>       <!-- orange accent -->
+    <color name="light_blue_bg">#FFE0B2</color>     <!-- soft orange background -->
+
+    <!-- Text Colors -->
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="border_light">#E0E0E0</color>
+
+</resources>

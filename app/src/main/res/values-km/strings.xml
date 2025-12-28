@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- App Name -->
+    <string name="app_name">កម្មវិធីតាមដានការចំណាយ</string>
+
+    <!-- Bottom Navigation -->
+    <string name="nav_home">ទំព័រដើម</string>
+    <string name="nav_add_expense">បន្ថែមការចំណាយ</string>
+    <string name="nav_expense_list">បញ្ជីការចំណាយ</string>
+
+    <!-- add expense -->
+
+        <string name="amount_title">ចំនួនទឹកប្រាក់</string>
+        <string name="enter_amount_title">បញ្ចូលចំនួន</string>
+        <string name="currency_title">រូបិយប័ណ្ណ</string>
+        <string name="category_title">ប្រភេទ</string>
+        <string name="date_title">កាលបរិច្ឆេទ</string>
+        <string name="remark_title">សម្គាល់</string>
+        <string name="enter_remark_title">បញ្ចូលចំណាំ</string>
+        <string name="add_expense_btn">បន្ថែមការចំណាយ</string>
+
+
+    <!-- Home Fragment -->
+    <string name="home_title">សង្ខេបការចំណាយ</string>
+    <string name="home_total_expenses">ការចំណាយសរុប: $1,250.00</string>
+    <string name="home_latest_expense">ចុងក្រោយ: ទិញម្ហូប - $85.50</string>
+    <string name="home_this_month">ខែនេះ</string>
+    <string name="home_last_updated">ធ្វើបច្ចុប្បន្នភាពចុងក្រោយ: ថ្ងៃនេះ</string>
+
+    <!-- Add Expense Fragment -->
+    <string name="add_expense_title">បន្ថែមការចំណាយថ្មី</string>
+    <string name="label_amount">ចំនួនទឹកប្រាក់</string>
+    <string name="hint_amount">បញ្ចូលចំនួន</string>
+    <string name="label_currency">រូបិយប័ណ្ណ</string>
+    <string name="label_category">ប្រភេទ</string>
+    <string name="label_date">កាលបរិច្ឆេទ</string>
+    <string name="hint_date">YYYY-MM-DD</string>
+    <string name="label_remark">សម្គាល់</string>
+    <string name="hint_remark">បញ្ចូលចំណាំ</string>
+    <string name="btn_add_expense">បន្ថែមការចំណាយ</string>
+    <string name="btn_save">រក្សាទុក</string>
+
+    <!-- Expense List Fragment -->
+    <string name="expense_list_title">ការចំណាយទាំងអស់</string>
+    <string name="no_expenses">រកមិនឃើញការចំណាយទេ</string>
+
+    <!-- Expense Item -->
+    <string name="category_label">ប្រភេទ: %1$s</string>
+    <string name="date_label">កាលបរិច្ឆេទ: %1$s</string>
+    <string name="remark_label">សម្គាល់: %1$s</string>
+    <string name="amount_format">$%1$.2f %2$s</string>
+
+    <!-- Detail Expense Activity -->
+    <string name="detail_title">ព័ត៌មានលម្អិតការចំណាយ</string>
+    <string name="detail_amount">ចំនួន: $%1$.2f</string>
+    <string name="detail_currency">រូបិយប័ណ្ណ: %1$s</string>
+    <string name="detail_date">កាលបរិច្ឆេទ: %1$s</string>
+    <string name="detail_category">ប្រភេទ: %1$s</string>
+    <string name="detail_remark">សម្គាល់: %1$s</string>
+
+    <!-- Currency Array -->
+    <string-array name="currencies">
+        <item>USD</item>
+        <item>EUR</item>
+        <item>GBP</item>
+        <item>KHR</item>
+        <item>JPY</item>
+    </string-array>
+
+    <!-- Category Array -->
+    <string-array name="categories">
+        <item>អាហារ</item>
+        <item>ការធ្វើដំណើរ</item>
+        <item>ទិញទំនិញ</item>
+        <item>វិក្កយបត្រ</item>
+        <item>ការកម្សាន្ត</item>
+        <item>គ្រឿងទេស</item>
+        <item>ញ៉ាំអាហារក្រៅ</item>
+        <item>ផ្សេងៗ</item>
+    </string-array>
+
+    <!-- Language Selection -->
+    <string-array name="language_entries">
+        <item>ខ្មែរ</item>
+        <item>អង់គ្លេស</item>
+
+    </string-array>
+
+    <string-array name="language_values">
+        <item>en</item>
+        <item>km</item>
+    </string-array>
+
+    <!-- Theme Selection -->
+    <string-array name="theme_entries">
+        <item>ភ្លឺ</item>
+        <item>ងងឹត</item>
+        <item>លំនាំដើមប្រព័ន្ធ</item>
+    </string-array>
+
+    <string-array name="theme_values">
+        <item>light</item>
+        <item>dark</item>
+        <item>system</item>
+    </string-array>
+
+    <!-- Settings Strings -->
+    <string name="settings_title">ការកំណត់</string>
+    <string name="theme_title">រូបរាងកម្មវិធី</string>
+    <string name="lang_title">ភាសា</string>
+
+    <string name="theme_light">ភ្លឺ</string>
+    <string name="theme_dark">ងងឹត</string>
+
+    <string name="lang_en">អង់គ្លេស</string>
+    <string name="lang_km">ខ្មែរ</string>
+
+    <!-- add expense -->
+    <string name="total_title">ការចំណាយសរុប</string>
+
+</resources>

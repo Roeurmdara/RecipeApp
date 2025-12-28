@@ -1,0 +1,31 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+
+    <EditText
+        android:id="@+id/etStepDescription"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:layout_weight="1"
+        android:background="@drawable/edit_text_border"
+        android:gravity="center_vertical"
+        android:hint="Step description"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:textColor="#333333"
+        android:textSize="16sp"
+        android:inputType="textMultiLine"/>
+
+    <Button
+        android:id="@+id/btnRemoveStep"
+        android:layout_width="56dp"
+        android:layout_height="65dp"
+        android:layout_marginStart="12dp"
+        android:text="X"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:backgroundTint="@color/purple_500"
+        android:gravity="center" />
+</LinearLayout>

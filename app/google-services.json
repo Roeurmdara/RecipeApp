@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "485308038570",
+    "project_id": "recipe-2f48e",
+    "storage_bucket": "recipe-2f48e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:485308038570:android:037e8655e9d90fb443ffd3",
+        "android_client_info": {
+          "package_name": "com.example.Recipe"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDFYQ7QJvWDOeZabIgp4FEePXBypPUFyXw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:485308038570:android:a1d4a578be8ef07b43ffd3",
+        "android_client_info": {
+          "package_name": "com.example.Resipe"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDFYQ7QJvWDOeZabIgp4FEePXBypPUFyXw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
