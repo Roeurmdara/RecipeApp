@@ -36,11 +36,11 @@ import java.util.List;
 public class SubmitRecipeFragment extends Fragment {
 
     private ImageView ivRecipeImage;
-    private EditText etRecipeName, etInstructions;
+    private EditText etRecipeName, etInstructions, etServings, etCookingTime;
     private LinearLayout ingredientsContainer, stepsContainer;
     private Button btnUploadImage, btnAddIngredient, btnAddStep, btnSubmit;
     private ProgressBar progressBar;
-    private Spinner spinnerCategory;
+    private Spinner spinnerCategory, spinnerDifficulty, spinnerCuisine;
 
     private Uri imageUri;
     private String base64Image; // Store image as Base64 string
@@ -64,6 +64,8 @@ public class SubmitRecipeFragment extends Fragment {
         initViews(view);
         initFirebase();
         setupCategorySpinner();
+        setupDifficultySpinner();
+        setupCuisineSpinner();
         setupImagePicker();
         setupPermissionLauncher();
         setupListeners();
@@ -78,7 +80,12 @@ public class SubmitRecipeFragment extends Fragment {
         ivRecipeImage = view.findViewById(R.id.ivRecipeImage);
         etRecipeName = view.findViewById(R.id.etRecipeName);
         etInstructions = view.findViewById(R.id.etInstructions);
+        etServings = view.findViewById(R.id.etServings);
+        etCookingTime = view.findViewById(R.id.etCookingTime); // New field
+
         spinnerCategory = view.findViewById(R.id.spinnerCategory);
+        spinnerDifficulty = view.findViewById(R.id.spinnerDifficulty);
+        spinnerCuisine = view.findViewById(R.id.spinnerCuisine);
 
         ingredientsContainer = view.findViewById(R.id.ingredientsContainer);
         stepsContainer = view.findViewById(R.id.stepsContainer);
@@ -114,6 +121,33 @@ public class SubmitRecipeFragment extends Fragment {
         spinnerCategory.setAdapter(adapter);
     }
 
+    private void setupDifficultySpinner() {
+        String[] difficulties = {"Select Difficulty", "Easy", "Medium", "Hard"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                requireContext(),
+                android.R.layout.simple_spinner_item,
+                difficulties
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerDifficulty.setAdapter(adapter);
+    }
+
+    private void setupCuisineSpinner() {
+        String[] cuisines = {
+                "Select Cuisine (Optional)",
+                "Italian","khmer", "Chinese", "Mexican" , "Indian", "Japanese",
+                "French", "American", "Mediterranean", "Korean", "Vietnamese",
+                "Spanish", "Greek", "Middle Eastern", "Other"
+        };
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                requireContext(),
+                android.R.layout.simple_spinner_item,
+                cuisines
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerCuisine.setAdapter(adapter);
+    }
+
     private void setupPermissionLauncher() {
         permissionLauncher = registerForActivityResult(
                 new ActivityResultContracts.RequestPermission(),
@@ -131,8 +165,6 @@ public class SubmitRecipeFragment extends Fragment {
                     if (uri != null) {
                         imageUri = uri;
                         ivRecipeImage.setImageURI(uri);
-
-                        // Convert image to Base64
                         convertImageToBase64(uri);
                     }
                 }
@@ -144,22 +176,16 @@ public class SubmitRecipeFragment extends Fragment {
             InputStream inputStream = requireContext().getContentResolver().openInputStream(uri);
             Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
 
-            // Compress image to reduce size
             int maxWidth = 800;
             int maxHeight = 800;
-
             if (bitmap.getWidth() > maxWidth || bitmap.getHeight() > maxHeight) {
-                float scale = Math.min(
-                        (float) maxWidth / bitmap.getWidth(),
-                        (float) maxHeight / bitmap.getHeight()
-                );
-
-                int newWidth = Math.round(bitmap.getWidth() * scale);
-                int newHeight = Math.round(bitmap.getHeight() * scale);
-                bitmap = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
+                float scale = Math.min((float) maxWidth / bitmap.getWidth(),
+                        (float) maxHeight / bitmap.getHeight());
+                bitmap = Bitmap.createScaledBitmap(bitmap,
+                        Math.round(bitmap.getWidth() * scale),
+                        Math.round(bitmap.getHeight() * scale), true);
             }
 
-            // Convert to Base64
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.JPEG, 70, baos);
             byte[] imageBytes = baos.toByteArray();
@@ -218,12 +244,7 @@ public class SubmitRecipeFragment extends Fragment {
     static class IngredientView {
         View view;
         EditText name, qty;
-
-        IngredientView(View v, EditText n, EditText q) {
-            view = v;
-            name = n;
-            qty = q;
-        }
+        IngredientView(View v, EditText n, EditText q) { view = v; name = n; qty = q; }
     }
 
     // ================== STEPS ==================
@@ -246,16 +267,11 @@ public class SubmitRecipeFragment extends Fragment {
     static class StepView {
         View view;
         EditText step;
-
-        StepView(View v, EditText s) {
-            view = v;
-            step = s;
-        }
+        StepView(View v, EditText s) { view = v; step = s; }
     }
 
     // ================== SUBMIT ==================
     private void submitRecipe() {
-
         FirebaseUser user = firebaseAuth.getCurrentUser();
         if (user == null) {
             Toast.makeText(getContext(), "Login required", Toast.LENGTH_SHORT).show();
@@ -265,22 +281,54 @@ public class SubmitRecipeFragment extends Fragment {
         String name = etRecipeName.getText().toString().trim();
         String instructions = etInstructions.getText().toString().trim();
         String category = spinnerCategory.getSelectedItem().toString();
+        String servingsStr = etServings.getText().toString().trim();
+        String difficulty = spinnerDifficulty.getSelectedItem().toString();
+        String cuisine = spinnerCuisine.getSelectedItem().toString();
+        String cookingTimeStr = etCookingTime.getText().toString().trim(); // New field
 
         if (name.isEmpty() || instructions.isEmpty() || base64Image == null
                 || category.equals("Select Category")) {
-            Toast.makeText(getContext(), "Fill all fields and select an image", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Fill all required fields and select an image", Toast.LENGTH_SHORT).show();
             return;
         }
+
+        if (difficulty.equals("Select Difficulty")) {
+            Toast.makeText(getContext(), "Please select a difficulty level", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        int servings = 0;
+        try {
+            servings = Integer.parseInt(servingsStr);
+            if (servings <= 0 || servings > 99) {
+                Toast.makeText(getContext(), "Servings must be between 1 and 99", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        } catch (NumberFormatException e) {
+            Toast.makeText(getContext(), "Invalid servings number", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        int cookingTime = 0;
+        try {
+            cookingTime = Integer.parseInt(cookingTimeStr);
+            if (cookingTime < 0 || cookingTime > 1440) { // max 24 hours
+                Toast.makeText(getContext(), "Enter a valid cooking time in minutes", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        } catch (NumberFormatException e) {
+            Toast.makeText(getContext(), "Invalid cooking time", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (cuisine.equals("Select Cuisine (Optional)")) cuisine = "";
 
         List<Ingredient> ingredients = new ArrayList<>();
         for (IngredientView i : ingredientViews) {
             String ingName = i.name.getText().toString().trim();
             String ingQty = i.qty.getText().toString().trim();
-            if (!ingName.isEmpty()) {
-                ingredients.add(new Ingredient(ingName, ingQty));
-            }
+            if (!ingName.isEmpty()) ingredients.add(new Ingredient(ingName, ingQty));
         }
-
         if (ingredients.isEmpty()) {
             Toast.makeText(getContext(), "Add at least one ingredient", Toast.LENGTH_SHORT).show();
             return;
@@ -289,11 +337,8 @@ public class SubmitRecipeFragment extends Fragment {
         List<Step> steps = new ArrayList<>();
         for (StepView s : stepViews) {
             String stepDesc = s.step.getText().toString().trim();
-            if (!stepDesc.isEmpty()) {
-                steps.add(new Step(stepDesc));
-            }
+            if (!stepDesc.isEmpty()) steps.add(new Step(stepDesc));
         }
-
         if (steps.isEmpty()) {
             Toast.makeText(getContext(), "Add at least one step", Toast.LENGTH_SHORT).show();
             return;
@@ -302,22 +347,24 @@ public class SubmitRecipeFragment extends Fragment {
         progressBar.setVisibility(View.VISIBLE);
         btnSubmit.setEnabled(false);
 
-        saveRecipe(name, category, user, ingredients, steps, instructions);
+        saveRecipe(name, category, user, ingredients, steps, instructions,
+                servings, difficulty, cuisine, cookingTime);
     }
 
     private void saveRecipe(String name, String category, FirebaseUser user,
                             List<Ingredient> ingredients, List<Step> steps,
-                            String instructions) {
+                            String instructions, int servings, String difficulty,
+                            String cuisine, int cookingTime) {
 
         String username = user.getDisplayName() != null
                 ? user.getDisplayName()
                 : user.getEmail().split("@")[0];
 
-        // Use Base64 image instead of URL
         Recipe recipe = new Recipe(
                 name, base64Image, category, username, user.getUid(),
-                ingredients, steps, instructions
+                ingredients, steps, instructions, servings, difficulty, cuisine
         );
+        recipe.setCookingTime(cookingTime);
 
         String id = databaseReference.push().getKey();
         recipe.setId(id);
@@ -327,14 +374,8 @@ public class SubmitRecipeFragment extends Fragment {
                     progressBar.setVisibility(View.GONE);
                     btnSubmit.setEnabled(true);
                     Toast.makeText(getContext(), "Recipe submitted successfully!", Toast.LENGTH_SHORT).show();
-
-                    // Clear form
                     clearForm();
-
-                    // Go back
-                    if (getActivity() != null) {
-                        getActivity().getSupportFragmentManager().popBackStack();
-                    }
+                    if (getActivity() != null) getActivity().getSupportFragmentManager().popBackStack();
                 })
                 .addOnFailureListener(e -> {
                     progressBar.setVisibility(View.GONE);
@@ -346,12 +387,15 @@ public class SubmitRecipeFragment extends Fragment {
     private void clearForm() {
         etRecipeName.setText("");
         etInstructions.setText("");
+        etServings.setText("");
+        etCookingTime.setText("");
         spinnerCategory.setSelection(0);
+        spinnerDifficulty.setSelection(0);
+        spinnerCuisine.setSelection(0);
         ivRecipeImage.setImageResource(0);
         imageUri = null;
         base64Image = null;
 
-        // Clear ingredients and steps
         ingredientsContainer.removeAllViews();
         stepsContainer.removeAllViews();
         ingredientViews.clear();

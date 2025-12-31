@@ -2,12 +2,11 @@ package com.example.Recipe;
 
 import android.os.Bundle;
 import android.util.Base64;
-import android.view.Gravity;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.graphics.Paint;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -26,7 +25,7 @@ import com.google.gson.Gson;
 public class DetailRecipeActivity extends AppCompatActivity {
 
     private ImageView ivRecipeImage;
-    private TextView tvRecipeName, tvCategory, tvUserName, tvInstructions;
+    private TextView tvRecipeName, tvCategory, tvServings, tvDifficulty, tvCuisine, tvInstructions, tvCookingTime;
     private LinearLayout ingredientsContainer, stepsContainer;
     private ProgressBar progressBar;
 
@@ -59,8 +58,11 @@ public class DetailRecipeActivity extends AppCompatActivity {
         ivRecipeImage = findViewById(R.id.ivRecipeImage);
         tvRecipeName = findViewById(R.id.tvRecipeName);
         tvCategory = findViewById(R.id.tvCategory);
-        tvUserName = findViewById(R.id.tvUserName);
+        tvServings = findViewById(R.id.tvServings);
+        tvDifficulty = findViewById(R.id.tvDifficulty);
+        tvCuisine = findViewById(R.id.tvCuisine);
         tvInstructions = findViewById(R.id.tvInstructions);
+        tvCookingTime = findViewById(R.id.tvCookingTime); // NEW
         ingredientsContainer = findViewById(R.id.ingredientsContainer);
         stepsContainer = findViewById(R.id.stepsContainer);
         progressBar = findViewById(R.id.progressBar);
@@ -76,7 +78,7 @@ public class DetailRecipeActivity extends AppCompatActivity {
     }
 
     private void loadRecipeFromFirebase() {
-        progressBar.setVisibility(android.view.View.VISIBLE);
+        progressBar.setVisibility(View.VISIBLE);
 
         databaseReference.child(recipeId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -89,26 +91,61 @@ public class DetailRecipeActivity extends AppCompatActivity {
                             Toast.makeText(DetailRecipeActivity.this, "Recipe not found", Toast.LENGTH_SHORT).show();
                             finish();
                         }
-                        progressBar.setVisibility(android.view.View.GONE);
+                        progressBar.setVisibility(View.GONE);
                     }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-                        progressBar.setVisibility(android.view.View.GONE);
+                        progressBar.setVisibility(View.GONE);
                         Toast.makeText(DetailRecipeActivity.this, error.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
     private void displayRecipe(Recipe recipe) {
+
         // ===== Recipe Name & Category =====
-        tvRecipeName.setText(recipe.getName());
-        tvCategory.setText(recipe.getCategory());
+        tvRecipeName.setText(recipe.getName() != null ? recipe.getName() : "Unnamed Recipe");
+        tvCategory.setText(recipe.getCategory() != null ? recipe.getCategory() : "Unknown");
 
+        // ===== Servings =====
+        if (recipe.getServings() > 0) {
+            tvServings.setText(String.valueOf(recipe.getServings()));
+        } else {
+            tvServings.setText("N/A");
+        }
 
+        // ===== Difficulty =====
+        if (recipe.getDifficulty() != null && !recipe.getDifficulty().isEmpty()) {
+            tvDifficulty.setText(recipe.getDifficulty());
+        } else {
+            tvDifficulty.setText("N/A");
+        }
+
+        // ===== Cooking Time =====
+        if (recipe.getCookingTime() > 0) {
+            tvCookingTime.setText(recipe.getCookingTime() + " min");
+            tvCookingTime.setVisibility(View.VISIBLE);
+        } else {
+            tvCookingTime.setVisibility(View.GONE);
+        }
+
+        // ===== Cuisine =====
+        if (recipe.getCuisine() != null && !recipe.getCuisine().isEmpty()) {
+            tvCuisine.setText(recipe.getCuisine() + " Cuisine");
+            tvCuisine.setVisibility(View.VISIBLE);
+        } else {
+            tvCuisine.setVisibility(View.GONE);
+        }
 
         // ===== Instructions =====
-        tvInstructions.setText(recipe.getInstructions());
+        tvInstructions.setText(
+                recipe.getInstructions() != null
+                        ? recipe.getInstructions()
+                        : "No instructions provided"
+        );
+
+
 
         // ===== Load Image (Base64) =====
         if (recipe.getImageUrl() != null && !recipe.getImageUrl().isEmpty()) {
@@ -138,33 +175,82 @@ public class DetailRecipeActivity extends AppCompatActivity {
     }
 
     private void addIngredientView(Ingredient ingredient, int number) {
-        TextView tv = new TextView(this);
-        tv.setText("• " + ingredient.getName() + " - " + ingredient.getQuantity());
-        tv.setTextSize(16);
-        tv.setPadding(0, 8, 0, 8);
-        ingredientsContainer.addView(tv);
+
+        // Parent layout (horizontal)
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setPadding(0, 8, 0, 8);
+
+        // Left text: number + name
+        TextView tvName = new TextView(this);
+        tvName.setText(number + ". " + ingredient.getName() + " ");
+        tvName.setTextSize(16);
+        tvName.setLayoutParams(new LinearLayout.LayoutParams(
+                0,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                1f
+        ));
+
+        // Right text: quantity
+        TextView tvQty = new TextView(this);
+        tvQty.setText(ingredient.getQuantity());
+        tvQty.setTextSize(16);
+        tvQty.setTypeface(null, android.graphics.Typeface.BOLD); // BOLD
+        tvQty.setTextColor(0xFF424242); // Pure black
+        tvQty.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_END);
+        tvQty.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        ));
+
+        // Add views
+        row.addView(tvName);
+        row.addView(tvQty);
+
+        ingredientsContainer.addView(row);
+
+        // Divider line
+        View divider = new View(this);
+        divider.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                1
+        ));
+        divider.setBackgroundColor(0xFFDDDDDD);
+
+        ingredientsContainer.addView(divider);
     }
+
 
     private void addStepView(Step step, int number) {
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.HORIZONTAL);
-        layout.setPadding(0, 8, 0, 16);
 
-        TextView tvNum = new TextView(this);
-        tvNum.setText(String.valueOf(number));
-        tvNum.setPadding(12, 12, 12, 12);
-        tvNum.setTextColor(0xFFFFFFFF);
-        tvNum.setBackgroundResource(android.R.drawable.btn_default);
+        // Parent container (vertical)
+        LinearLayout container = new LinearLayout(this);
+        container.setOrientation(LinearLayout.VERTICAL);
+        container.setPadding(0, 12, 0, 24);
 
-        TextView tvDesc = new TextView(this);
-        tvDesc.setText(step.getDescription());
-        tvDesc.setTextSize(16);
-        tvDesc.setPadding(16, 0, 0, 0);
+        // Step title row (number + title)
+        TextView tvTitle = new TextView(this);
+        tvTitle.setText(number + ". " + step.getDescription());
+        tvTitle.setTextSize(16);
+        tvTitle.setTypeface(null);
 
-        layout.addView(tvNum);
-        layout.addView(tvDesc);
-        stepsContainer.addView(layout);
+
+        container.addView(tvTitle);
+
+        // Divider (optional)
+        View divider = new View(this);
+        divider.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                1
+        ));
+        divider.setBackgroundColor(0xFFE0E0E0);
+        divider.setPadding(0, 12, 0, 0);
+
+        container.addView(divider);
+
+        stepsContainer.addView(container);
     }
+
 
     @Override
     public boolean onSupportNavigateUp() {

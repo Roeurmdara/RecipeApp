@@ -15,15 +15,17 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-
 
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "MainActivity";
     private BottomNavigationView bottomNavigationView;
+    private FloatingActionButton fabAddRecipe;
     private FirebaseAuth mAuth;
 
     @Override
@@ -58,44 +60,76 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-
-
         bottomNavigationView = findViewById(R.id.bottom_navigation);
+        fabAddRecipe = findViewById(R.id.fab_add_recipe);
 
         // Load default fragment
         if (savedInstanceState == null) {
+            Log.d(TAG, "Loading default fragment (HomeFragment)");
             loadFragment(new HomeFragment());
         }
+
         // Bottom navigation listener
         bottomNavigationView.setOnItemSelectedListener(item -> {
             Fragment selectedFragment = null;
             int itemId = item.getItemId();
+
+            Log.d(TAG, "Bottom nav item selected: " + itemId);
+
             if (itemId == R.id.nav_home) {
+                Log.d(TAG, "Loading HomeFragment");
                 selectedFragment = new HomeFragment();
             } else if (itemId == R.id.nav_dicover) {
+                Log.d(TAG, "Loading DiscoverFragment");
                 selectedFragment = new DiscoverFragment();
-            } else if (itemId == R.id.nav_list) {
-                selectedFragment = new SubmitRecipeFragment();
             } else if (itemId == R.id.nav_setting) {
+                Log.d(TAG, "Loading FavoritesFragment");
                 selectedFragment = new FavoritesFragment();
             } else if (itemId == R.id.nav_profile) {
-                selectedFragment = new SettingFragment();
+                Log.d(TAG, "Loading UserProfileFragment (own profile)");
+                selectedFragment = new UserProfileFragment(); // Own profile
             }
+
             if (selectedFragment != null) {
                 loadFragment(selectedFragment);
+                return true;
             }
-            return true;
+            return false;
+        });
+
+        // FAB click listener for Add Recipe
+        fabAddRecipe.setOnClickListener(v -> {
+            Log.d(TAG, "FAB clicked - Loading SubmitRecipeFragment");
+            loadFragment(new SubmitRecipeFragment());
+            // Deselect all bottom navigation items
+            bottomNavigationView.getMenu().setGroupCheckable(0, true, false);
+            for (int i = 0; i < bottomNavigationView.getMenu().size(); i++) {
+                bottomNavigationView.getMenu().getItem(i).setChecked(false);
+            }
+            bottomNavigationView.getMenu().setGroupCheckable(0, true, true);
         });
     }
 
     private void loadFragment(Fragment fragment) {
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_container, fragment);
-        transaction.commit();
+        try {
+            if (fragment != null) {
+                Log.d(TAG, "Loading fragment: " + fragment.getClass().getSimpleName());
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.fragment_container, fragment);
+                transaction.commit();
+                Log.d(TAG, "Fragment loaded successfully");
+            } else {
+                Log.e(TAG, "Fragment is null");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error loading fragment: " + e.getMessage(), e);
+            e.printStackTrace();
+        }
     }
 
     public void switchToExpenseList() {
-        bottomNavigationView.setSelectedItemId(R.id.nav_list);
+        // Now switches to the FAB action
+        fabAddRecipe.performClick();
     }
 
     @Override
@@ -130,6 +164,15 @@ public class MainActivity extends AppCompatActivity {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         } else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            getSupportFragmentManager().popBackStack();
+        } else {
+            super.onBackPressed();
         }
     }
 }

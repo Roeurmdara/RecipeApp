@@ -14,7 +14,10 @@ import android.view.ViewGroup;
 import android.widget.*;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.Recipe.model.Recipe;
@@ -57,7 +60,10 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
         Recipe recipe = recipeList.get(position);
         FirebaseUser user = firebaseAuth.getCurrentUser();
 
+        // Set recipe name
         holder.tvRecipeName.setText(recipe.getName());
+
+        // Set username with underline and icon
         holder.tvUserName.setText(recipe.getUserName());
         holder.tvUserName.setCompoundDrawablesWithIntrinsicBounds(
                 R.drawable.baseline_user, 0, 0, 0
@@ -68,7 +74,10 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
                 holder.tvUserName.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG
         );
 
+        // Set category
         holder.tvCategory.setText(recipe.getCategory());
+
+        // Set counts
         holder.tvLikeCount.setText(String.valueOf(recipe.getLikeCount()));
         holder.tvDownloadCount.setText(String.valueOf(recipe.getDownloadCount()));
 
@@ -81,14 +90,28 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
             } catch (Exception e) {
                 holder.ivRecipeImage.setBackgroundColor(0xFFE0E0E0);
             }
+        } else {
+            holder.ivRecipeImage.setBackgroundColor(0xFFE0E0E0);
         }
 
+        // Show correct like icon based on user's like status
+        if (user != null) {
+            Map<String, Boolean> likes = recipe.getLikes();
+            boolean isLiked = likes != null && likes.containsKey(user.getUid()) && likes.get(user.getUid());
+            holder.ivLike.setImageResource(
+                    isLiked ? R.drawable.baseline_star_24_liked : R.drawable.baseline_star_24
+            );
+        } else {
+            holder.ivLike.setImageResource(R.drawable.baseline_star_24);
+        }
+
+        // Show download icon status
         boolean isDownloaded = isRecipeDownloaded(recipe.getId());
         holder.ivDownload.setImageResource(
                 isDownloaded ? R.drawable.baseline_download_done_24 : R.drawable.baseline_download_24
         );
 
-        // Card click: always pass full recipe JSON if downloaded, otherwise recipeId
+        // Card click: open recipe detail
         holder.cardView.setOnClickListener(v -> {
             Intent intent = new Intent(context, DetailRecipeActivity.class);
             if (isDownloaded && user != null) {
@@ -102,36 +125,69 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
                     intent.putExtra("recipeId", recipe.getId());
                 }
             } else {
-                intent.putExtra("RECIPE_OBJECT", gson.toJson(recipe)); // send full recipe object
+                intent.putExtra("RECIPE_OBJECT", gson.toJson(recipe));
             }
             context.startActivity(intent);
         });
 
+        // Username click: open user profile
+        holder.tvUserName.setOnClickListener(v -> {
+            if (recipe.getUserId() != null && !recipe.getUserId().isEmpty()) {
+                openUserProfile(recipe.getUserId());
+            } else {
+                Toast.makeText(context, "User profile not available", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         // Like button
         holder.btnLike.setOnClickListener(v -> {
-            if (user != null) toggleLike(recipe, user.getUid(), holder);
-            else Toast.makeText(context, "Login required", Toast.LENGTH_SHORT).show();
+            if (user != null) {
+                toggleLike(recipe, user.getUid(), holder);
+            } else {
+                Toast.makeText(context, "Login required", Toast.LENGTH_SHORT).show();
+            }
         });
 
         // Download button
         holder.btnDownload.setOnClickListener(v -> {
-            if (user != null) toggleDownload(recipe, holder);
-            else Toast.makeText(context, "Login required", Toast.LENGTH_SHORT).show();
+            if (user != null) {
+                toggleDownload(recipe, holder);
+            } else {
+                Toast.makeText(context, "Login required", Toast.LENGTH_SHORT).show();
+            }
         });
+    }
+
+    private void openUserProfile(String userId) {
+        if (context instanceof AppCompatActivity) {
+            AppCompatActivity activity = (AppCompatActivity) context;
+            FragmentManager fragmentManager = activity.getSupportFragmentManager();
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+
+            // Create UserProfileFragment with the userId
+            UserProfileFragment profileFragment = UserProfileFragment.newInstance(userId);
+            transaction.replace(R.id.fragment_container, profileFragment);
+            transaction.addToBackStack(null);
+            transaction.commit();
+        }
     }
 
     private void toggleLike(Recipe recipe, String uid, RecipeViewHolder holder) {
         Map<String, Boolean> likes = recipe.getLikes() != null ? recipe.getLikes() : new HashMap<>();
         boolean liked = likes.containsKey(uid) && likes.get(uid);
+
         if (liked) {
+            // User is unliking
             likes.remove(uid);
-            recipe.setLikeCount(recipe.getLikeCount() - 1);
-            holder.ivLike.setImageResource(R.drawable.baseline_star_24_liked);
+            recipe.setLikeCount(Math.max(0, recipe.getLikeCount() - 1));
+            holder.ivLike.setImageResource(R.drawable.baseline_star_24); // Empty star
         } else {
+            // User is liking
             likes.put(uid, true);
             recipe.setLikeCount(recipe.getLikeCount() + 1);
-            holder.ivLike.setImageResource(R.drawable.baseline_star_24);
+            holder.ivLike.setImageResource(R.drawable.baseline_star_24_liked); // Filled star
         }
+
         recipe.setLikes(likes);
         holder.tvLikeCount.setText(String.valueOf(recipe.getLikeCount()));
         databaseReference.child(recipe.getId()).child("likes").setValue(likes);
@@ -148,14 +204,21 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeView
         boolean isDownloaded = isRecipeDownloaded(recipe.getId());
 
         if (isDownloaded) {
+            // Remove from downloaded
             prefs.edit().remove("recipe_" + recipe.getId()).apply();
             holder.ivDownload.setImageResource(R.drawable.baseline_download_24);
+            Toast.makeText(context, "Removed from downloads", Toast.LENGTH_SHORT).show();
         } else {
+            // Add to downloaded
             prefs.edit().putString("recipe_" + recipe.getId(), gson.toJson(recipe)).apply();
             holder.ivDownload.setImageResource(R.drawable.baseline_download_done_24);
+
+            // Increment download count
             recipe.setDownloadCount(recipe.getDownloadCount() + 1);
             holder.tvDownloadCount.setText(String.valueOf(recipe.getDownloadCount()));
             databaseReference.child(recipe.getId()).child("downloadCount").setValue(recipe.getDownloadCount());
+
+            Toast.makeText(context, "Recipe downloaded", Toast.LENGTH_SHORT).show();
         }
     }
 

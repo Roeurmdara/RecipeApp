@@ -1,71 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:fillViewport="true"
     android:background="#F5F5F5">
 
-    <!-- Header -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:background="#FFFFFF"
-        android:elevation="4dp">
+        android:orientation="vertical">
 
+        <!-- Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:background="#FFFFFF"
+            android:elevation="4dp">
+
+            <TextView
+                android:id="@+id/tvFavoritesTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/my_favorites"
+                android:textSize="25sp"
+                android:textStyle="bold"
+                android:textColor="#333"/>
+
+            <!-- Tabs -->
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tabLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:tabMode="fixed"
+                app:tabGravity="fill"
+                app:tabIndicatorColor="@color/purple_500"
+                app:tabSelectedTextColor="@color/purple_500"
+                app:tabTextColor="#666"/>
+        </LinearLayout>
+
+        <!-- Progress Bar -->
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="32dp"
+            android:visibility="gone"/>
+
+        <!-- Empty State -->
         <TextView
+            android:id="@+id/tvNoRecipes"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="My Favorites"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            android:textColor="#000"/>
+            android:layout_marginTop="100dp"
+            android:padding="32dp"
+            android:text="@string/no_favorites"
+            android:textSize="18sp"
+            android:textColor="#999"
+            android:gravity="center"
+            android:visibility="gone"/>
 
-        <!-- Tabs for Liked and Downloaded -->
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/tabLayout"
+        <!-- RecyclerView -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewFavorites"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:tabMode="fixed"
-            app:tabGravity="fill"
-            app:tabIndicatorColor="@color/purple_500"
-            app:tabSelectedTextColor="@color/purple_500"
-            app:tabTextColor="#666"/>
+            android:padding="8dp"
+            android:clipToPadding="false"
+            android:nestedScrollingEnabled="false"/>
+
+        <!-- Extra bottom space -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="120dp"/>
     </LinearLayout>
-
-    <!-- Progress Bar -->
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="32dp"
-        android:visibility="gone"/>
-
-    <!-- Empty State -->
-    <TextView
-        android:id="@+id/tvNoRecipes"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="100dp"
-        android:padding="32dp"
-        android:text="No recipes yet"
-        android:textSize="18sp"
-        android:textColor="#999"
-        android:gravity="center"
-        android:lineSpacingExtra="4dp"
-        android:visibility="gone"/>
-
-    <!-- Favorites RecyclerView -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewFavorites"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="8dp"
-        android:clipToPadding="false"/>
-
-</LinearLayout>
+</ScrollView>

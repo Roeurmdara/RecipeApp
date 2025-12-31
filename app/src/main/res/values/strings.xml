@@ -1,41 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <!-- App Name -->
     <string name="app_name">RecipeApp</string>
-    <!--login-->
-    <string name="Email">Email</string>
+
+    <!-- Login -->
+    <string name="email">Email</string>
     <string name="hint_password">Password</string>
     <string name="btn_login">Login</string>
     <string name="sign_in_continue">Sign in to continue</string>
 
-    <!--singup-->
-    <string name="btn_singup">Singup</string>
+    <!-- Signup -->
+    <string name="btn_signup">Signup</string>
     <string name="sign_up_continue">Sign up to continue</string>
-    <string name="hint_comferm_password"> Confirm Password</string>
+    <string name="hint_confirm_password">Confirm Password</string>
 
-        <!-- Recipe Form Strings -->
-        <string name="upload_image">Upload Image</string>
-        <string name="recipe_name_hint">Recipe Name</string>
-        <string name="ingredients_header">Ingredients</string>
-        <string name="add_ingredient">+ Add Ingredient</string>
-        <string name="cooking_steps_header">Cooking Steps</string>
-        <string name="add_cooking_step">+ Add Cooking Step</string>
-        <string name="additional_notes_hint">Additional Notes (optional)</string>
-        <string name="submit_recipe">Submit Recipe</string>
+    <!-- My Recipes Page -->
+    <string name="my_recipes">My Recipes</string>
+    <string name="recipe_count">0 recipes</string>
+    <string name="no_recipes">No recipes yet</string>
 
+    <!-- Favorites Page -->
+    <string name="my_favorites">My Favorites</string>
+    <string name="no_favorites">No recipes yet</string>
+    <string name="liked_tab">Liked</string>
+    <string name="downloaded_tab">Downloaded</string>
 
+    <!-- Recipe Form Strings -->
+    <string name="upload_image">Upload Image</string>
+    <string name="recipe_name_hint">Recipe Name</string>
+    <string name="ingredients_header">Ingredients</string>
+    <string name="add_ingredient">+ Add Ingredient</string>
+    <string name="cooking_steps_header">Cooking Steps</string>
+    <string name="add_cooking_step">+ Add Cooking Step</string>
+    <string name="additional_notes_hint">Additional Notes (optional)</string>
+    <string name="submit_recipe">Submit Recipe</string>
 
+    <!-- Recipe Actions -->
+    <string name="delete_recipe">Delete Recipe</string>
+    <string name="edit_recipe">Edit Recipe</string>
+    <string name="share_recipe">Share Recipe</string>
+    <string name="recipe_submitted">Recipe submitted successfully!</string>
+    <string name="recipe_deleted">Recipe deleted successfully!</string>
 
-    <!-- Settings Strings -->
+    <!-- Profile -->
+    <string name="profile_title">Profile</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="logout">Logout</string>
+
+    <!-- Settings -->
     <string name="settings_title">Settings</string>
     <string name="theme_title">App Theme</string>
     <string name="lang_title">Language</string>
     <string name="theme_light">Light Mode</string>
     <string name="theme_dark">Dark Mode</string>
+    <string name="theme_system">System Default</string>
     <string name="lang_en">English</string>
     <string name="lang_km">Khmer</string>
 
+    <!-- Search & Input Hints -->
+    <string name="search_hint">Search recipes...</string>
+    <string name="ingredient_name_hint">Ingredient Name</string>
+    <string name="step_description_hint">Step Description</string>
 
+    <!-- Totals / Misc -->
+    <string name="total_title">Total</string>
 
     <!-- Currency Array -->
     <string-array name="currencies">
@@ -46,24 +75,11 @@
         <item>JPY</item>
     </string-array>
 
-    <!-- Category Array -->
-    <string-array name="categories">
-        <item>Food</item>
-        <item>Transport</item>
-        <item>Shopping</item>
-        <item>Bills</item>
-        <item>Entertainment</item>
-        <item>Grocery</item>
-        <item>Dining</item>
-        <item>Other</item>
-    </string-array>
-
     <!-- Language Selection -->
     <string-array name="language_entries">
         <item>English</item>
         <item>Khmer</item>
     </string-array>
-
     <string-array name="language_values">
         <item>en</item>
         <item>km</item>
@@ -75,12 +91,10 @@
         <item>Dark</item>
         <item>System Default</item>
     </string-array>
-
     <string-array name="theme_values">
         <item>light</item>
         <item>dark</item>
         <item>system</item>
     </string-array>
-
 
 </resources>

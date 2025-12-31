@@ -14,22 +14,39 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="0dp"
         android:layout_height="56dp"
-        app:itemIconTint="@color/primary_dark_blue"
-        app:itemTextColor="@color/dark_text_secondary"
-        app:labelVisibilityMode="labeled"
-        app:itemIconSize="36dp"
         app:menu="@menu/bottom_nav_menu"
-        android:background="@color/white"
+        app:itemIconTint="@color/purple_700"
+        app:itemTextColor="@color/dark_text_secondary"
+        app:itemIconSize="36dp"
+        app:labelVisibilityMode="labeled"
+        app:itemBackground="@drawable/bottom_nav_item_bg"
+        app:elevation="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Center FAB overlapping Bottom Nav -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add_recipe"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:src="@drawable/ic_add"
+        android:scaleType="center"
+        app:backgroundTint="@color/purple_700"
+        app:tint="@android:color/white"
+        app:maxImageSize="52dp"
+        app:fabCustomSize="64dp"
+        app:elevation="8dp"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:elevation="8dp"/>
+        android:translationY="45dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

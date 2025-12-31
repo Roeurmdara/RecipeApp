@@ -22,25 +22,20 @@ import androidx.fragment.app.Fragment;
 import com.example.Recipe.model.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.*;
 
 import java.util.Locale;
 
 public class SettingFragment extends Fragment {
 
     private TextView tvUserName, tvUserEmail, tvUserInitial;
-    private RadioGroup radioGroupTheme, radioGroupLang;
     private RadioButton rbLight, rbDark, rbEnglish, rbKhmer;
+    private RadioGroup radioGroupTheme, radioGroupLang;
     private Button btnLogout;
+
     private SharedPreferences sharedPreferences;
     private FirebaseAuth mAuth;
     private DatabaseReference databaseReference;
-
-    public SettingFragment() { }
 
     @Nullable
     @Override
@@ -50,20 +45,18 @@ public class SettingFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_setting, container, false);
 
-        // Initialize UI
         tvUserName = view.findViewById(R.id.tvUserName);
         tvUserEmail = view.findViewById(R.id.tvUserEmail);
         tvUserInitial = view.findViewById(R.id.tvUserInitial);
-        radioGroupTheme = view.findViewById(R.id.radioGroupTheme);
-        radioGroupLang = view.findViewById(R.id.radioGroupLang);
         rbLight = view.findViewById(R.id.rbLight);
         rbDark = view.findViewById(R.id.rbDark);
         rbEnglish = view.findViewById(R.id.rbEnglish);
         rbKhmer = view.findViewById(R.id.rbKhmer);
-
+        radioGroupTheme = view.findViewById(R.id.radioGroupTheme);
+        radioGroupLang = view.findViewById(R.id.radioGroupLang);
+        btnLogout = view.findViewById(R.id.btnLogout);
 
         sharedPreferences = requireActivity().getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
-
         mAuth = FirebaseAuth.getInstance();
         databaseReference = FirebaseDatabase.getInstance(
                 "https://recipe-2f48e-default-rtdb.asia-southeast1.firebasedatabase.app/"
@@ -72,87 +65,72 @@ public class SettingFragment extends Fragment {
         loadUserInfo();
         loadPreferences();
 
-        // Theme selection listener
-        radioGroupTheme.setOnCheckedChangeListener((group, checkedId) -> {
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            if (checkedId == R.id.rbLight) {
-                editor.putBoolean("isDarkMode", false);
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-            } else if (checkedId == R.id.rbDark) {
-                editor.putBoolean("isDarkMode", true);
+        radioGroupTheme.setOnCheckedChangeListener((g, id) -> {
+            SharedPreferences.Editor e = sharedPreferences.edit();
+            if (id == R.id.rbDark) {
+                e.putBoolean("isDarkMode", true);
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            } else {
+                e.putBoolean("isDarkMode", false);
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
             }
-            editor.apply();
+            e.apply();
         });
 
-        // Language selection listener
-        radioGroupLang.setOnCheckedChangeListener((group, checkedId) -> {
-            String lang = (checkedId == R.id.rbKhmer) ? "km" : "en";
+        radioGroupLang.setOnCheckedChangeListener((g, id) -> {
+            String lang = (id == R.id.rbKhmer) ? "km" : "en";
             sharedPreferences.edit().putString("My_Lang", lang).apply();
             setLocale(lang);
             requireActivity().recreate();
         });
 
-        // Logout button
         btnLogout.setOnClickListener(v -> {
             mAuth.signOut();
-            Toast.makeText(getContext(), "Logged out successfully", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(getActivity(), LoginActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
+            startActivity(new Intent(getActivity(), LoginActivity.class));
+            requireActivity().finish();
         });
 
         return view;
     }
 
     private void loadUserInfo() {
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser == null) return;
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user == null) return;
 
-        // Get user info from Firebase Database
-        databaseReference.child(currentUser.getUid())
+        databaseReference.child(user.getUid())
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         String name = "User";
-                        String email = currentUser.getEmail(); // fallback
+                        String email = user.getEmail();
 
                         if (snapshot.exists()) {
-                            User user = snapshot.getValue(User.class);
-                            if (user != null) {
-                                if (user.getName() != null && !user.getName().isEmpty()) name = user.getName();
-                                if (user.getEmail() != null && !user.getEmail().isEmpty()) email = user.getEmail();
-                            }
-                        } else {
-                            // Optional: If database record doesn't exist, use Firebase Auth info
-                            if (currentUser.getDisplayName() != null && !currentUser.getDisplayName().isEmpty())
-                                name = currentUser.getDisplayName();
+                            User u = snapshot.getValue(User.class);
+                            if (u != null && u.getName() != null) name = u.getName();
                         }
 
                         tvUserName.setText(name);
-                        tvUserEmail.setText(email != null ? email : "");
-                        tvUserInitial.setText(!name.isEmpty() ? String.valueOf(name.charAt(0)).toUpperCase() : "U");
+                        tvUserEmail.setText(email);
+                        tvUserInitial.setText(String.valueOf(name.charAt(0)).toUpperCase());
                     }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-                        Toast.makeText(getContext(), "Failed to load user info", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Failed to load user", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
     private void loadPreferences() {
-        boolean isDark = sharedPreferences.getBoolean("isDarkMode", false);
-        if (isDark) rbDark.setChecked(true);
+        if (sharedPreferences.getBoolean("isDarkMode", false)) rbDark.setChecked(true);
         else rbLight.setChecked(true);
 
-        String lang = sharedPreferences.getString("My_Lang", "en");
-        if ("km".equals(lang)) rbKhmer.setChecked(true);
+        if ("km".equals(sharedPreferences.getString("My_Lang", "en"))) rbKhmer.setChecked(true);
         else rbEnglish.setChecked(true);
     }
 
-    private void setLocale(String langCode) {
-        Locale locale = new Locale(langCode);
+    private void setLocale(String lang) {
+        Locale locale = new Locale(lang);
         Locale.setDefault(locale);
         Configuration config = new Configuration();
         config.setLocale(locale);

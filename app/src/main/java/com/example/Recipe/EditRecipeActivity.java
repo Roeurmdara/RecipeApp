@@ -35,11 +35,11 @@ import java.util.List;
 public class EditRecipeActivity extends AppCompatActivity {
 
     private ImageView ivRecipeImage;
-    private EditText etRecipeName, etInstructions;
+    private EditText etRecipeName, etInstructions, etServings;
     private LinearLayout ingredientsContainer, stepsContainer;
     private Button btnUploadImage, btnAddIngredient, btnAddStep, btnSubmit;
     private ProgressBar progressBar;
-    private Spinner spinnerCategory;
+    private Spinner spinnerCategory, spinnerDifficulty, spinnerCuisine;
 
     private Uri imageUri;
     private String base64Image;
@@ -70,6 +70,8 @@ public class EditRecipeActivity extends AppCompatActivity {
         initViews();
         initFirebase();
         setupCategorySpinner();
+        setupDifficultySpinner();
+        setupCuisineSpinner();
         setupImagePicker();
         setupPermissionLauncher();
         setupListeners();
@@ -82,9 +84,15 @@ public class EditRecipeActivity extends AppCompatActivity {
         ivRecipeImage = findViewById(R.id.ivRecipeImage);
         etRecipeName = findViewById(R.id.etRecipeName);
         etInstructions = findViewById(R.id.etInstructions);
+        etServings = findViewById(R.id.etServings);
+
         spinnerCategory = findViewById(R.id.spinnerCategory);
+        spinnerDifficulty = findViewById(R.id.spinnerDifficulty);
+        spinnerCuisine = findViewById(R.id.spinnerCuisine);
+
         ingredientsContainer = findViewById(R.id.ingredientsContainer);
         stepsContainer = findViewById(R.id.stepsContainer);
+
         btnUploadImage = findViewById(R.id.btnUploadImage);
         btnAddIngredient = findViewById(R.id.btnAddIngredient);
         btnAddStep = findViewById(R.id.btnAddStep);
@@ -129,6 +137,45 @@ public class EditRecipeActivity extends AppCompatActivity {
         spinnerCategory.setAdapter(adapter);
     }
 
+    private void setupDifficultySpinner() {
+        String[] difficulties = {"Select Difficulty", "Easy", "Medium", "Hard"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_item,
+                difficulties
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerDifficulty.setAdapter(adapter);
+    }
+
+    private void setupCuisineSpinner() {
+        String[] cuisines = {
+                "Select Cuisine (Optional)",
+                "Italian",
+                "Chinese",
+                "Mexican",
+                "Thai",
+                "Indian",
+                "Japanese",
+                "French",
+                "American",
+                "Mediterranean",
+                "Korean",
+                "Vietnamese",
+                "Spanish",
+                "Greek",
+                "Middle Eastern",
+                "Other"
+        };
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_item,
+                cuisines
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerCuisine.setAdapter(adapter);
+    }
+
     private void loadRecipeData() {
         progressBar.setVisibility(android.view.View.VISIBLE);
 
@@ -142,12 +189,39 @@ public class EditRecipeActivity extends AppCompatActivity {
                     etRecipeName.setText(originalRecipe.getName());
                     etInstructions.setText(originalRecipe.getInstructions());
 
+                    // Set servings
+                    if (originalRecipe.getServings() > 0) {
+                        etServings.setText(String.valueOf(originalRecipe.getServings()));
+                    }
+
                     // Set category
                     String recipeCategory = originalRecipe.getCategory();
                     if (recipeCategory != null) {
                         for (int i = 0; i < spinnerCategory.getCount(); i++) {
                             if (spinnerCategory.getItemAtPosition(i).toString().equals(recipeCategory)) {
                                 spinnerCategory.setSelection(i);
+                                break;
+                            }
+                        }
+                    }
+
+                    // Set difficulty
+                    String recipeDifficulty = originalRecipe.getDifficulty();
+                    if (recipeDifficulty != null && !recipeDifficulty.isEmpty()) {
+                        for (int i = 0; i < spinnerDifficulty.getCount(); i++) {
+                            if (spinnerDifficulty.getItemAtPosition(i).toString().equals(recipeDifficulty)) {
+                                spinnerDifficulty.setSelection(i);
+                                break;
+                            }
+                        }
+                    }
+
+                    // Set cuisine
+                    String recipeCuisine = originalRecipe.getCuisine();
+                    if (recipeCuisine != null && !recipeCuisine.isEmpty()) {
+                        for (int i = 0; i < spinnerCuisine.getCount(); i++) {
+                            if (spinnerCuisine.getItemAtPosition(i).toString().equals(recipeCuisine)) {
+                                spinnerCuisine.setSelection(i);
                                 break;
                             }
                         }
@@ -338,12 +412,40 @@ public class EditRecipeActivity extends AppCompatActivity {
         String name = etRecipeName.getText().toString().trim();
         String instructions = etInstructions.getText().toString().trim();
         String category = spinnerCategory.getSelectedItem().toString();
+        String servingsStr = etServings.getText().toString().trim();
+        String difficulty = spinnerDifficulty.getSelectedItem().toString();
+        String cuisine = spinnerCuisine.getSelectedItem().toString();
 
         // Use original data if user didn't change it
         if (name.isEmpty()) name = originalRecipe.getName();
         if (instructions.isEmpty()) instructions = originalRecipe.getInstructions();
         if (category.equals("Select Category")) category = originalRecipe.getCategory();
         if (base64Image == null) base64Image = originalRecipe.getImageUrl();
+
+        // Handle servings
+        int servings = originalRecipe.getServings(); // default to original
+        if (!servingsStr.isEmpty()) {
+            try {
+                servings = Integer.parseInt(servingsStr);
+                if (servings <= 0 || servings > 99) {
+                    Toast.makeText(this, "Servings must be between 1 and 99", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                Toast.makeText(this, "Invalid servings number", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+
+        // Handle difficulty
+        if (difficulty.equals("Select Difficulty")) {
+            difficulty = originalRecipe.getDifficulty();
+        }
+
+        // Handle cuisine
+        if (cuisine.equals("Select Cuisine (Optional)")) {
+            cuisine = originalRecipe.getCuisine();
+        }
 
         // Collect ingredients (keep old if none entered)
         List<Ingredient> ingredients = new ArrayList<>();
@@ -373,12 +475,12 @@ public class EditRecipeActivity extends AppCompatActivity {
         progressBar.setVisibility(android.view.View.VISIBLE);
         btnSubmit.setEnabled(false);
 
-        saveUpdatedRecipe(name, category, user, ingredients, steps, instructions);
+        saveUpdatedRecipe(name, category, user, ingredients, steps, instructions, servings, difficulty, cuisine);
     }
 
     private void saveUpdatedRecipe(String name, String category, FirebaseUser user,
                                    List<Ingredient> ingredients, List<Step> steps,
-                                   String instructions) {
+                                   String instructions, int servings, String difficulty, String cuisine) {
 
         String username = user.getDisplayName() != null
                 ? user.getDisplayName()
@@ -386,13 +488,17 @@ public class EditRecipeActivity extends AppCompatActivity {
 
         Recipe recipe = new Recipe(
                 name, base64Image, category, username, user.getUid(),
-                ingredients, steps, instructions
+                ingredients, steps, instructions, servings, difficulty, cuisine
         );
 
         recipe.setId(recipeId);
-        // Keep original timestamp
+
+        // Keep original timestamp and stats
         if (originalRecipe != null) {
             recipe.setTimestamp(originalRecipe.getTimestamp());
+            recipe.setLikes(originalRecipe.getLikes());
+            recipe.setLikeCount(originalRecipe.getLikeCount());
+            recipe.setDownloadCount(originalRecipe.getDownloadCount());
         }
 
         databaseReference.child(recipeId).setValue(recipe)

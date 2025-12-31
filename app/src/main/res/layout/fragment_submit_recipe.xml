@@ -55,6 +55,7 @@
                 android:src="@drawable/baseline_putimage" />
 
         </FrameLayout>
+
         <Button
             android:id="@+id/btnUploadImage"
             android:layout_width="match_parent"
@@ -64,17 +65,26 @@
             android:backgroundTint="@color/purple_500"
             android:textColor="#FFFFFF"
             android:layout_marginBottom="24dp"
-
             android:layout_marginTop="4dp"/>
 
 
+        <!-- Recipe Name Label -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Recipe Name"
+            android:textSize="16dp"
+            android:textStyle="bold"
+            android:textColor="#616161"
+            android:letterSpacing="0.05"
+            android:layout_marginBottom="6dp" />
 
-        <!-- Recipe Name -->
+        <!-- Recipe Name Input -->
         <EditText
             android:id="@+id/etRecipeName"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:hint="Recipe Name"
+            android:hint="Enter recipe name"
             android:inputType="text"
             android:padding="16dp"
             android:textSize="16sp"
@@ -96,7 +106,89 @@
             android:id="@+id/spinnerCategory"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:background="@drawable/spinner_border_selector"
+            android:background="@drawable/edit_text_border"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:layout_marginBottom="24dp"/>
+
+        <!-- Servings -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Servings"
+            android:textSize="16dp"
+            android:textStyle="bold"
+            android:textColor="#616161"
+            android:layout_marginBottom="6dp"/>
+
+        <EditText
+            android:id="@+id/etServings"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:hint="Number of servings (e.g., 4)"
+            android:inputType="number"
+            android:maxLength="2"
+            android:padding="16dp"
+            android:textSize="16sp"
+            android:background="@drawable/edit_text_border"
+            android:layout_marginBottom="20dp"/>
+
+
+        <!-- Cooking Time -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Cooking Time (minutes)"
+            android:textSize="16dp"
+            android:textStyle="bold"
+            android:textColor="#616161"
+            android:layout_marginBottom="6dp"/>
+
+        <EditText
+            android:id="@+id/etCookingTime"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:hint="e.g., 30"
+            android:inputType="number"
+            android:padding="16dp"
+            android:textSize="16sp"
+            android:background="@drawable/edit_text_border"
+            android:layout_marginBottom="20dp"/>
+
+        <!-- Difficulty Level -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Difficulty Level"
+            android:textSize="16dp"
+            android:textStyle="bold"
+            android:textColor="#616161"
+            android:layout_marginBottom="6dp"/>
+
+        <Spinner
+            android:id="@+id/spinnerDifficulty"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@drawable/edit_text_border"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:layout_marginBottom="20dp"/>
+
+        <!-- Cuisine Type -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Cuisine Type (Optional)"
+            android:textSize="16dp"
+            android:textStyle="bold"
+            android:textColor="#616161"
+            android:layout_marginBottom="6dp"/>
+
+        <Spinner
+            android:id="@+id/spinnerCuisine"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@drawable/edit_text_border"
             android:paddingStart="12dp"
             android:paddingEnd="12dp"
             android:layout_marginBottom="24dp"/>
@@ -133,10 +225,6 @@
             android:textStyle="bold"
             android:layout_marginBottom="16dp"/>
 
-
-
-
-
         <!-- Cooking Steps Section -->
         <TextView
             android:layout_width="match_parent"
@@ -152,9 +240,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-
             android:background="#FFFFFF"
-
             android:layout_marginBottom="12dp"
             android:clipToPadding="false"/>
 
@@ -169,7 +255,6 @@
             android:textSize="16sp"
             android:textStyle="bold"
             android:layout_marginBottom="24dp"/>
-
 
         <!-- Additional Instructions -->
         <EditText
@@ -186,17 +271,17 @@
             android:layout_marginBottom="24dp"/>
 
         <!-- Submit Button -->
+        <Button android:id="@+id/btnSubmit" android:layout_width="match_parent" android:layout_height="56dp" android:text="Submit Recipe" android:textAllCaps="false" android:textSize="16sp" android:textStyle="bold" android:backgroundTint="@color/purple_500" android:textColor="#FFFFFF" android:layout_marginBottom="24dp"/>
         <Button
-            android:id="@+id/btnSubmit"
-            android:layout_width="match_parent"
+
+            android:layout_width="0dp"
             android:layout_height="56dp"
-            android:text="Submit Recipe"
             android:textAllCaps="false"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:backgroundTint="@color/purple_500"
-            android:textColor="#FFFFFF"
+            android:elevation="0dp"
             android:layout_marginBottom="24dp"/>
+
 
     </LinearLayout>
 </ScrollView>

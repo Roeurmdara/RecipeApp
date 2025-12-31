@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:attr/colorBackground">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Progress Bar -->
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="24dp"
+            android:visibility="gone"/>
+
+        <!-- User Profile Section -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <!-- Profile Image -->
+                <TextView
+                    android:id="@+id/tvUserInitial"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@drawable/ic_home"
+                    android:gravity="center"
+                    android:text="U"
+                    android:textColor="@android:color/white"
+                    android:textSize="40sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- Username -->
+                <TextView
+                    android:id="@+id/tvUserName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Username"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:gravity="center"
+                    android:layout_marginBottom="16dp"/>
+
+                <!-- Stats -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_marginBottom="16dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="center">
+
+                        <TextView
+                            android:id="@+id/tvRecipeCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textSize="24sp"
+                            android:textStyle="bold"
+                            android:textColor="?android:attr/textColorPrimary"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Recipes"
+                            android:textSize="12sp"
+                            android:textColor="?android:attr/textColorSecondary"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layoutFollowers"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackground"
+                        android:padding="8dp">
+
+                        <TextView
+                            android:id="@+id/tvFollowerCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textSize="24sp"
+                            android:textStyle="bold"
+                            android:textColor="?android:attr/textColorPrimary"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Followers"
+                            android:textSize="12sp"
+                            android:textColor="?android:attr/textColorSecondary"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layoutFollowing"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackground"
+                        android:padding="8dp">
+
+                        <TextView
+                            android:id="@+id/tvFollowingCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textSize="24sp"
+                            android:textStyle="bold"
+                            android:textColor="?android:attr/textColorPrimary"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Following"
+                            android:textSize="12sp"
+                            android:textColor="?android:attr/textColorSecondary"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Follow Button -->
+                <Button
+                    android:id="@+id/btnFollow"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:text="Follow"
+                    android:textAllCaps="false"
+                    android:textStyle="bold"
+                    android:backgroundTint="@color/purple_500"
+                    android:textColor="#FFFFFF"/>
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- User's Recipes Section -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Recipes"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:padding="16dp"/>
+
+                <!-- Recipes RecyclerView -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerViewRecipes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:nestedScrollingEnabled="false"/>
+
+                <!-- Empty State -->
+                <TextView
+                    android:id="@+id/tvEmptyState"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="No recipes yet"
+                    android:textSize="16sp"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:gravity="center"
+                    android:padding="32dp"
+                    android:visibility="gone"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+    </LinearLayout>
+</ScrollView>
