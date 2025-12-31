@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F5F5F5">
+    android:background="?android:attr/colorBackground">
 
     <!-- Header -->
     <LinearLayout
@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp"
-        android:background="#FFFFFF"
+        android:background="?android:attr/colorBackgroundFloating"
         android:elevation="4dp">
 
         <!-- Filter Spinner -->
@@ -24,9 +24,9 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Filter: "
+                android:text="@string/filter_label"
                 android:textSize="16sp"
-                android:textColor="#000"
+                android:textColor="?android:attr/textColorPrimary"
                 android:layout_marginEnd="8dp"/>
 
             <Spinner
@@ -57,13 +57,13 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- All Recipes Section (Top - Horizontal Scroll - Filterable) -->
+            <!-- All Recipes Section -->
             <LinearLayout
                 android:id="@+id/allRecipesSection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="#FFFFFF"
+                android:background="?android:attr/colorBackground"
                 android:padding="14dp"
                 android:layout_marginBottom="8dp"
                 android:visibility="gone">
@@ -71,10 +71,10 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="All Recipes"
+                    android:text="@string/all_recipes"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="#666"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:layout_marginBottom="12dp"/>
 
                 <androidx.recyclerview.widget.RecyclerView
@@ -86,13 +86,13 @@
                     android:paddingEnd="4dp"/>
             </LinearLayout>
 
-            <!-- Khmer Food Section (Below - Horizontal Scroll) -->
+            <!-- Khmer Food Section -->
             <LinearLayout
                 android:id="@+id/khmerFoodSection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="#FFFFFF"
+                android:background="?android:attr/colorBackground"
                 android:padding="14dp"
                 android:layout_marginBottom="8dp"
                 android:visibility="gone">
@@ -100,10 +100,10 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Khmer Food"
+                    android:text="@string/khmer_food"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="#666"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:layout_marginBottom="12dp"/>
 
                 <androidx.recyclerview.widget.RecyclerView
@@ -114,11 +114,10 @@
                     android:paddingStart="4dp"
                     android:paddingEnd="4dp"/>
             </LinearLayout>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="80dp"/>
-
-
         </LinearLayout>
     </ScrollView>
 

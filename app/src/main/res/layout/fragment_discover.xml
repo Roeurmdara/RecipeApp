@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F5F5F5">
+    android:background="?android:attr/colorBackground">
 
     <!-- Header -->
     <LinearLayout
@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp"
-        android:background="#FFFFFF"
+        android:background="?android:attr/colorBackgroundFloating"
         android:elevation="4dp">
 
         <TextView
@@ -21,7 +21,7 @@
             android:text="@string/my_recipes"
             android:textSize="25sp"
             android:textStyle="bold"
-            android:textColor="#333"/>
+            android:textColor="?android:attr/textColorPrimary"/>
 
         <TextView
             android:id="@+id/tvRecipeCount"
@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:text="@string/recipe_count"
             android:textSize="14sp"
-            android:textColor="#666"
+            android:textColor="?android:attr/textColorSecondary"
             android:layout_marginTop="4dp"
             android:visibility="gone"/>
     </LinearLayout>
@@ -50,13 +50,13 @@
         android:layout_height="wrap_content"
         android:text="@string/no_recipes"
         android:textSize="18sp"
-        android:textColor="#999"
+        android:textColor="?android:attr/textColorSecondary"
         android:gravity="center"
         android:layout_marginTop="100dp"
         android:padding="32dp"
         android:visibility="gone"/>
 
-    <!-- RecyclerView with extra bottom space -->
+    <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewMyRecipes"
         android:layout_width="match_parent"
@@ -66,5 +66,4 @@
         android:paddingBottom="200dp"
         android:clipToPadding="false"
         android:nestedScrollingEnabled="true"/>
-
 </LinearLayout>

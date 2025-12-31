@@ -15,6 +15,11 @@
     <string name="sign_up_continue">Sign up to continue</string>
     <string name="hint_confirm_password">Confirm Password</string>
 
+    <!-- home page  -->
+    <string name="filter_label">Filter: </string>
+    <string name="all_recipes">All Recipes</string>
+    <string name="khmer_food">Khmer Food</string>
+
     <!-- My Recipes Page -->
     <string name="my_recipes">My Recipes</string>
     <string name="recipe_count">0 recipes</string>
@@ -48,6 +53,7 @@
     <string name="edit_profile">Edit Profile</string>
     <string name="logout">Logout</string>
 
+
     <!-- Settings -->
     <string name="settings_title">Settings</string>
     <string name="theme_title">App Theme</string>
@@ -63,17 +69,15 @@
     <string name="ingredient_name_hint">Ingredient Name</string>
     <string name="step_description_hint">Step Description</string>
 
-    <!-- Totals / Misc -->
-    <string name="total_title">Total</string>
+    <!-- profile  -->
+    <string name="user_initial">U</string>
+    <string name="recipes">Recipes</string>
+    <string name="followers">Followers</string>
+    <string name="following">Following</string>
+    <string name="follow">Follow</string>
+    <string name="no_recipes_yet">No recipes yet</string>
 
-    <!-- Currency Array -->
-    <string-array name="currencies">
-        <item>USD</item>
-        <item>EUR</item>
-        <item>GBP</item>
-        <item>KHR</item>
-        <item>JPY</item>
-    </string-array>
+
 
     <!-- Language Selection -->
     <string-array name="language_entries">

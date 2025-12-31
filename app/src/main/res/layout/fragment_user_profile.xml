@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="6dp">
 
         <!-- Progress Bar -->
         <ProgressBar
@@ -47,7 +47,7 @@
                         android:id="@+id/tvUserInitial"
                         android:layout_width="80dp"
                         android:layout_height="80dp"
-                        android:background="@drawable/ic_home"
+                        android:background="@drawable/bg_avatar_circle"
                         android:gravity="center"
                         android:text="U"
                         android:textColor="@android:color/white"
@@ -66,7 +66,6 @@
                             android:id="@+id/tvUserName"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="User Name"
                             android:textSize="22sp"
                             android:textStyle="bold"
                             android:textColor="?android:attr/textColorPrimary" />
@@ -75,10 +74,10 @@
                             android:id="@+id/tvUserEmail"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="user@example.com"
                             android:textSize="14sp"
                             android:layout_marginTop="4dp"
-                            android:textColor="?android:attr/textColorSecondary" />
+                            android:textColor="?android:attr/textColorSecondary"
+                            android:visibility="gone" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -110,7 +109,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Recipes"
+                            android:text="@string/recipes"
                             android:textSize="12sp"
                             android:textColor="?android:attr/textColorSecondary"/>
                     </LinearLayout>
@@ -139,7 +138,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Followers"
+                            android:text="@string/followers"
                             android:textSize="12sp"
                             android:textColor="?android:attr/textColorSecondary"/>
                     </LinearLayout>
@@ -168,7 +167,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Following"
+                            android:text="@string/following"
                             android:textSize="12sp"
                             android:textColor="?android:attr/textColorSecondary"/>
                     </LinearLayout>
@@ -206,7 +205,7 @@
                     android:id="@+id/tvRecipesTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="My Recipes"
+                    android:text="@string/my_recipes"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     android:textColor="?android:attr/textColorPrimary"
@@ -225,7 +224,7 @@
                     android:id="@+id/tvEmptyState"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="No recipes yet"
+                    android:text="@string/no_recipes_yet"
                     android:textSize="16sp"
                     android:textColor="?android:attr/textColorSecondary"
                     android:gravity="center"
@@ -347,7 +346,7 @@
                 android:textAllCaps="false"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:backgroundTint="#F44336"
+                android:backgroundTint="@color/primary_blue"
                 android:textColor="#FFFFFF"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="16dp"/>

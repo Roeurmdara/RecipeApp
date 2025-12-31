@@ -14,6 +14,9 @@
     <string name="btn_signup">ចុះឈ្មោះ</string>
     <string name="sign_up_continue">ចុះឈ្មោះដើម្បីបន្ត</string>
     <string name="hint_confirm_password">បញ្ជាក់លេខសំងាត់</string>
+    <!-- home page  -->
+    <string name="all_recipes">ម្ហូបទាំងអស់</string>
+    <string name="khmer_food">ម្ហូបខ្មែរ</string>
 
     <!-- My Recipes Page -->
     <string name="my_recipes">ម្ហូបរបស់ខ្ញុំ</string>
@@ -44,9 +47,13 @@
     <string name="recipe_deleted">លុមម្ហូបដោយជោគជ័យ!</string>
 
     <!-- Profile -->
-    <string name="profile_title">ប្រូហ្វៃល</string>
-    <string name="edit_profile">កែប្រែប្រូហ្វៃល</string>
-    <string name="logout">ចេញ</string>
+    <string name="recipes">រូបមន្ត</string>
+    <string name="followers">អ្នកតាម</string>
+    <string name="following">កំពុងតាម</string>
+    <string name="follow">តាម</string>
+
+
+    <string name="no_recipes_yet">មិនមានរូបមន្តទេ</string>
 
     <!-- Settings -->
     <string name="settings_title">ការកំណត់</string>
@@ -63,7 +70,6 @@
     <string name="ingredient_name_hint">ឈ្មោះគ្រឿងផ្សំ</string>
     <string name="step_description_hint">ពិពណ៌នាជំហាន</string>
 
-    <!-- Totals / Misc -->
-    <string name="total_title">សរុប</string>
+
 
 </resources>

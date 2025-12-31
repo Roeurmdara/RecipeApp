@@ -65,12 +65,12 @@ public class UserProfileFragment extends Fragment {
     private RecipeAdapter recipeAdapter;
     private List<Recipe> userRecipes = new ArrayList<>();
 
+    private ValueEventListener userProfileListener;
+
     public UserProfileFragment() {
-        Log.d(TAG, "Constructor called");
     }
 
     public static UserProfileFragment newInstance(String userId) {
-        Log.d(TAG, "newInstance called with userId: " + userId);
         UserProfileFragment fragment = new UserProfileFragment();
         Bundle args = new Bundle();
         args.putString("USER_ID", userId);
@@ -81,10 +81,8 @@ public class UserProfileFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "onCreate called");
         if (getArguments() != null) {
             userId = getArguments().getString("USER_ID");
-            Log.d(TAG, "Got userId from arguments: " + userId);
         }
     }
 
@@ -92,217 +90,298 @@ public class UserProfileFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "onCreateView started");
+        View view = inflater.inflate(R.layout.fragment_user_profile, container, false);
 
-        try {
-            View view = inflater.inflate(R.layout.fragment_user_profile, container, false);
-            Log.d(TAG, "Layout inflated successfully");
+        initViews(view);
+        initFirebase();
 
-            initViews(view);
-            Log.d(TAG, "Views initialized");
+        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+        if (firebaseUser != null) {
+            currentUserId = firebaseUser.getUid();
+            Log.d(TAG, "Current User ID: " + currentUserId);
+            Log.d(TAG, "Viewing Profile ID: " + userId);
 
-            initFirebase();
-            Log.d(TAG, "Firebase initialized");
-
-            FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-            if (firebaseUser != null) {
-                currentUserId = firebaseUser.getUid();
-                Log.d(TAG, "Current user ID: " + currentUserId);
-
-                if (userId == null || userId.isEmpty()) {
-                    userId = currentUserId;
-                    Log.d(TAG, "No userId provided, using current user: " + userId);
-                }
-
-                checkIfOwnProfile();
-                Log.d(TAG, "Is own profile: " + isOwnProfile);
-
-                setupRecyclerView();
-                setupListeners();
-                loadUserProfile();
-                loadUserRecipes();
-
-                if (isOwnProfile) {
-                    loadPreferences();
-                }
-
-                Log.d(TAG, "All initialization complete");
-            } else {
-                Log.e(TAG, "No user logged in");
-                Toast.makeText(getContext(), "Please login first", Toast.LENGTH_SHORT).show();
+            if (userId == null || userId.isEmpty()) {
+                userId = currentUserId;
             }
 
-            return view;
-        } catch (Exception e) {
-            Log.e(TAG, "Error in onCreateView", e);
-            Toast.makeText(getContext(), "Error loading profile: " + e.getMessage(), Toast.LENGTH_LONG).show();
-            return new View(requireContext());
+            checkIfOwnProfile();
+            setupRecyclerView();
+
+            if (isOwnProfile) {
+                loadPreferences();
+            }
+
+            setupListeners();
+            loadUserProfile();
+            loadUserRecipes();
+        } else {
+            Toast.makeText(getContext(), "Please login first", Toast.LENGTH_SHORT).show();
+        }
+
+        return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // Remove listener to prevent memory leaks
+        if (userProfileListener != null && userId != null) {
+            usersRef.child(userId).removeEventListener(userProfileListener);
         }
     }
 
     private void initViews(View view) {
-        try {
-            tvUserName = view.findViewById(R.id.tvUserName);
-            tvUserEmail = view.findViewById(R.id.tvUserEmail);
-            tvUserInitial = view.findViewById(R.id.tvUserInitial);
-            tvRecipeCount = view.findViewById(R.id.tvRecipeCount);
-            tvFollowerCount = view.findViewById(R.id.tvFollowerCount);
-            tvFollowingCount = view.findViewById(R.id.tvFollowingCount);
-            tvEmptyState = view.findViewById(R.id.tvEmptyState);
-            tvRecipesTitle = view.findViewById(R.id.tvRecipesTitle);
+        tvUserName = view.findViewById(R.id.tvUserName);
+        tvUserEmail = view.findViewById(R.id.tvUserEmail);
+        tvUserInitial = view.findViewById(R.id.tvUserInitial);
+        tvRecipeCount = view.findViewById(R.id.tvRecipeCount);
+        tvFollowerCount = view.findViewById(R.id.tvFollowerCount);
+        tvFollowingCount = view.findViewById(R.id.tvFollowingCount);
+        tvEmptyState = view.findViewById(R.id.tvEmptyState);
+        tvRecipesTitle = view.findViewById(R.id.tvRecipesTitle);
 
-            layoutFollowers = view.findViewById(R.id.layoutFollowers);
-            layoutFollowing = view.findViewById(R.id.layoutFollowing);
-            layoutSettings = view.findViewById(R.id.layoutSettings);
+        layoutFollowers = view.findViewById(R.id.layoutFollowers);
+        layoutFollowing = view.findViewById(R.id.layoutFollowing);
+        layoutSettings = view.findViewById(R.id.layoutSettings);
 
-            recyclerViewRecipes = view.findViewById(R.id.recyclerViewRecipes);
-            progressBar = view.findViewById(R.id.progressBar);
-            btnFollow = view.findViewById(R.id.btnFollow);
-            btnLogout = view.findViewById(R.id.btnLogout);
+        recyclerViewRecipes = view.findViewById(R.id.recyclerViewRecipes);
+        progressBar = view.findViewById(R.id.progressBar);
+        btnFollow = view.findViewById(R.id.btnFollow);
+        btnLogout = view.findViewById(R.id.btnLogout);
 
-            radioGroupTheme = view.findViewById(R.id.radioGroupTheme);
-            radioGroupLang = view.findViewById(R.id.radioGroupLang);
-            rbLight = view.findViewById(R.id.rbLight);
-            rbDark = view.findViewById(R.id.rbDark);
-            rbEnglish = view.findViewById(R.id.rbEnglish);
-            rbKhmer = view.findViewById(R.id.rbKhmer);
+        radioGroupTheme = view.findViewById(R.id.radioGroupTheme);
+        radioGroupLang = view.findViewById(R.id.radioGroupLang);
+        rbLight = view.findViewById(R.id.rbLight);
+        rbDark = view.findViewById(R.id.rbDark);
+        rbEnglish = view.findViewById(R.id.rbEnglish);
+        rbKhmer = view.findViewById(R.id.rbKhmer);
 
-            sharedPreferences = requireActivity().getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
-
-            Log.d(TAG, "All views found successfully");
-        } catch (Exception e) {
-            Log.e(TAG, "Error initializing views", e);
-            throw e;
-        }
+        sharedPreferences = requireActivity().getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
     }
 
     private void initFirebase() {
-        try {
-            FirebaseDatabase database = FirebaseDatabase.getInstance(
-                    "https://recipe-2f48e-default-rtdb.asia-southeast1.firebasedatabase.app/"
-            );
-            usersRef = database.getReference("users");
-            recipesRef = database.getReference("recipes");
-            firebaseAuth = FirebaseAuth.getInstance();
-            Log.d(TAG, "Firebase initialized successfully");
-        } catch (Exception e) {
-            Log.e(TAG, "Error initializing Firebase", e);
-            throw e;
-        }
+        FirebaseDatabase database = FirebaseDatabase.getInstance(
+                "https://recipe-2f48e-default-rtdb.asia-southeast1.firebasedatabase.app/"
+        );
+        usersRef = database.getReference("users");
+        recipesRef = database.getReference("recipes");
+        firebaseAuth = FirebaseAuth.getInstance();
     }
 
     private void checkIfOwnProfile() {
         isOwnProfile = userId != null && userId.equals(currentUserId);
+        Log.d(TAG, "Is Own Profile: " + isOwnProfile);
 
         if (isOwnProfile) {
-            // Own profile: show settings, hide follow button
             btnFollow.setVisibility(View.GONE);
             layoutSettings.setVisibility(View.VISIBLE);
             tvRecipesTitle.setText("My Recipes");
-            tvUserEmail.setVisibility(View.VISIBLE); // Show email on own profile
-            Log.d(TAG, "Showing own profile with settings");
         } else {
-            // Other user's profile: show follow button, hide settings
             btnFollow.setVisibility(View.VISIBLE);
             layoutSettings.setVisibility(View.GONE);
             tvRecipesTitle.setText("Recipes");
-            tvUserEmail.setVisibility(View.GONE); // Hide email on other profiles
-            Log.d(TAG, "Showing other user profile with follow button");
         }
     }
 
     private void setupRecyclerView() {
-        try {
-            recyclerViewRecipes.setLayoutManager(new LinearLayoutManager(getContext()));
-            recipeAdapter = new RecipeAdapter(getContext(), userRecipes, firebaseAuth);
-            recyclerViewRecipes.setAdapter(recipeAdapter);
-            Log.d(TAG, "RecyclerView setup complete");
-        } catch (Exception e) {
-            Log.e(TAG, "Error setting up RecyclerView", e);
-        }
+        recyclerViewRecipes.setLayoutManager(new LinearLayoutManager(getContext()));
+        recipeAdapter = new RecipeAdapter(getContext(), userRecipes, firebaseAuth);
+        recyclerViewRecipes.setAdapter(recipeAdapter);
     }
 
     private void loadUserProfile() {
-        if (userId == null) {
-            Log.e(TAG, "userId is null in loadUserProfile");
+        if (userId == null || userId.isEmpty()) {
+            Log.e(TAG, "userId is null or empty!");
+            Toast.makeText(getContext(), "Invalid user profile", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        Log.d(TAG, "Loading user profile for: " + userId);
         progressBar.setVisibility(View.VISIBLE);
+        Log.d(TAG, "Loading profile for userId: " + userId);
 
-        usersRef.child(userId).addValueEventListener(new ValueEventListener() {
+        // Use ValueEventListener for real-time updates
+        userProfileListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Log.d(TAG, "User profile data received");
-                FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-                String name = "User";
-                String email = "";
+                progressBar.setVisibility(View.GONE);
+                Log.d(TAG, "Profile snapshot exists: " + snapshot.exists());
 
                 if (snapshot.exists()) {
                     profileUser = snapshot.getValue(User.class);
                     if (profileUser != null) {
-                        if (profileUser.getName() != null && !profileUser.getName().isEmpty()) {
-                            name = profileUser.getName();
+                        // Ensure userId is set
+                        if (profileUser.getUserId() == null) {
+                            profileUser.setUserId(userId);
                         }
-                        if (profileUser.getEmail() != null && !profileUser.getEmail().isEmpty()) {
-                            email = profileUser.getEmail();
+
+                        // Initialize maps if null
+                        if (profileUser.getFollowers() == null) {
+                            profileUser.setFollowers(new HashMap<>());
                         }
-                        displayUserInfo();
-                        updateFollowButton();
-                        Log.d(TAG, "Profile user loaded: " + name);
+                        if (profileUser.getFollowing() == null) {
+                            profileUser.setFollowing(new HashMap<>());
+                        }
+
+                        Log.d(TAG, "Loaded user: " + profileUser.getName());
+
+                        // If name is null or empty, update it from recipes
+                        if (profileUser.getName() == null || profileUser.getName().isEmpty()) {
+                            Log.d(TAG, "User name is null, fetching from recipes...");
+                            fixUserNameFromRecipes();
+                        } else {
+                            displayUserProfile();
+                            updateFollowButton();
+                        }
+                    } else {
+                        Log.e(TAG, "Profile user is null after getValue");
+                        createUserProfile();
                     }
                 } else {
-                    Log.d(TAG, "User profile doesn't exist, creating basic profile");
-                    if (isOwnProfile && firebaseUser != null) {
-                        email = firebaseUser.getEmail();
-                        if (firebaseUser.getDisplayName() != null && !firebaseUser.getDisplayName().isEmpty()) {
-                            name = firebaseUser.getDisplayName();
-                        }
-                        createBasicUserProfile(userId, name, email);
-                    }
+                    Log.d(TAG, "User profile doesn't exist, creating...");
+                    createUserProfile();
                 }
-
-                tvUserName.setText(name);
-                if (isOwnProfile) {
-                    tvUserEmail.setText(email != null ? email : "");
-                }
-                tvUserInitial.setText(!name.isEmpty() ? String.valueOf(name.charAt(0)).toUpperCase() : "U");
-
-                progressBar.setVisibility(View.GONE);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG, "Failed to load user profile: " + error.getMessage());
                 progressBar.setVisibility(View.GONE);
-                Toast.makeText(getContext(), "Failed to load profile", Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Database error: " + error.getMessage());
+                Toast.makeText(getContext(), "Failed to load profile: " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
-        });
+        };
+
+        usersRef.child(userId).addValueEventListener(userProfileListener);
     }
 
-    private void createBasicUserProfile(String uid, String username, String email) {
-        Log.d(TAG, "Creating basic user profile");
-        User newUser = new User(uid, username, email);
-        usersRef.child(uid).setValue(newUser);
+    private void createUserProfile() {
+        Log.d(TAG, "Creating user profile for: " + userId);
+
+        // Try to get username from their recipes first
+        recipesRef.orderByChild("userId").equalTo(userId).limitToFirst(1)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        String username = null;
+                        String email = "";
+
+                        // Check recipes
+                        for (DataSnapshot recipeSnapshot : dataSnapshot.getChildren()) {
+                            Recipe recipe = recipeSnapshot.getValue(Recipe.class);
+                            if (recipe != null) {
+                                Log.d(TAG, "Found recipe by user: " + recipe.getUserName());
+                                if (recipe.getUserName() != null && !recipe.getUserName().isEmpty()) {
+                                    username = recipe.getUserName();
+                                    break;
+                                }
+                            }
+                        }
+
+                        // If own profile, get from Firebase Auth
+                        if (isOwnProfile) {
+                            FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+                            if (firebaseUser != null) {
+                                Log.d(TAG, "Getting info from Firebase Auth");
+                                if (username == null || username.isEmpty()) {
+                                    if (firebaseUser.getDisplayName() != null && !firebaseUser.getDisplayName().isEmpty()) {
+                                        username = firebaseUser.getDisplayName();
+                                        Log.d(TAG, "Got displayName: " + username);
+                                    } else if (firebaseUser.getEmail() != null) {
+                                        username = firebaseUser.getEmail().split("@")[0];
+                                        Log.d(TAG, "Got username from email: " + username);
+                                    }
+                                }
+                                email = firebaseUser.getEmail() != null ? firebaseUser.getEmail() : "";
+                            }
+                        }
+
+                        // Final fallback
+                        if (username == null || username.isEmpty()) {
+                            username = "User";
+                            Log.d(TAG, "Using fallback username: User");
+                        }
+
+                        // Create and save user
+                        User newUser = new User(userId, username, email);
+                        profileUser = newUser;
+
+                        Log.d(TAG, "Saving new user profile: " + username + " with ID: " + userId);
+                        usersRef.child(userId).setValue(newUser)
+                                .addOnSuccessListener(aVoid -> {
+                                    Log.d(TAG, "User profile saved successfully");
+                                    displayUserProfile();
+                                    updateFollowButton();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e(TAG, "Failed to save user profile", e);
+                                    Toast.makeText(getContext(), "Failed to create profile", Toast.LENGTH_SHORT).show();
+                                });
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Log.e(TAG, "Error loading recipes: " + error.getMessage());
+
+                        // Create basic profile as fallback
+                        String fallbackName = "User";
+                        String fallbackEmail = "";
+
+                        if (isOwnProfile) {
+                            FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+                            if (firebaseUser != null) {
+                                if (firebaseUser.getDisplayName() != null) {
+                                    fallbackName = firebaseUser.getDisplayName();
+                                } else if (firebaseUser.getEmail() != null) {
+                                    fallbackEmail = firebaseUser.getEmail();
+                                    fallbackName = fallbackEmail.split("@")[0];
+                                }
+                            }
+                        }
+
+                        profileUser = new User(userId, fallbackName, fallbackEmail);
+                        usersRef.child(userId).setValue(profileUser);
+                        displayUserProfile();
+                    }
+                });
     }
 
-    private void displayUserInfo() {
+    private void displayUserProfile() {
         if (profileUser == null) {
-            Log.w(TAG, "profileUser is null in displayUserInfo");
+            Log.e(TAG, "Cannot display: profileUser is null");
             return;
+        }
+
+        String name = profileUser.getName();
+        String email = profileUser.getEmail();
+
+        if (name == null || name.isEmpty()) {
+            name = "User";
+        }
+
+        Log.d(TAG, "Displaying: " + name + " | " + email);
+
+        tvUserName.setText(name);
+        tvUserInitial.setText(String.valueOf(name.charAt(0)).toUpperCase());
+
+        if (isOwnProfile && email != null && !email.isEmpty()) {
+            tvUserEmail.setText(email);
+            tvUserEmail.setVisibility(View.VISIBLE);
+        } else {
+            tvUserEmail.setVisibility(View.GONE);
         }
 
         tvRecipeCount.setText(String.valueOf(profileUser.getRecipeCount()));
         tvFollowerCount.setText(String.valueOf(profileUser.getFollowerCount()));
         tvFollowingCount.setText(String.valueOf(profileUser.getFollowingCount()));
-        Log.d(TAG, "User info displayed");
     }
 
     private void updateFollowButton() {
-        if (isOwnProfile || profileUser == null || currentUserId == null) return;
+        if (isOwnProfile || profileUser == null || currentUserId == null) {
+            return;
+        }
 
         boolean isFollowing = profileUser.isFollowedBy(currentUserId);
+        Log.d(TAG, "User is following: " + isFollowing);
 
         if (isFollowing) {
             btnFollow.setText("Unfollow");
@@ -315,16 +394,12 @@ public class UserProfileFragment extends Fragment {
                     getResources().getColorStateList(R.color.purple_500)
             );
         }
-        Log.d(TAG, "Follow button updated, isFollowing: " + isFollowing);
     }
 
     private void loadUserRecipes() {
-        if (userId == null) {
-            Log.e(TAG, "userId is null in loadUserRecipes");
-            return;
-        }
+        if (userId == null) return;
 
-        Log.d(TAG, "Loading recipes for user: " + userId);
+        Log.d(TAG, "Loading recipes for: " + userId);
         recipesRef.orderByChild("userId").equalTo(userId)
                 .addValueEventListener(new ValueEventListener() {
                     @Override
@@ -338,7 +413,7 @@ public class UserProfileFragment extends Fragment {
                             }
                         }
 
-                        Log.d(TAG, "Loaded " + userRecipes.size() + " recipes");
+                        Log.d(TAG, "Found " + userRecipes.size() + " recipes");
 
                         if (userRecipes.isEmpty()) {
                             tvEmptyState.setVisibility(View.VISIBLE);
@@ -351,10 +426,11 @@ public class UserProfileFragment extends Fragment {
                         recipeAdapter.updateRecipes(userRecipes);
 
                         // Update recipe count
-                        usersRef.child(userId).child("recipeCount").setValue(userRecipes.size());
+                        int recipeCount = userRecipes.size();
+                        usersRef.child(userId).child("recipeCount").setValue(recipeCount);
                         if (profileUser != null) {
-                            profileUser.setRecipeCount(userRecipes.size());
-                            tvRecipeCount.setText(String.valueOf(userRecipes.size()));
+                            profileUser.setRecipeCount(recipeCount);
+                            tvRecipeCount.setText(String.valueOf(recipeCount));
                         }
                     }
 
@@ -395,10 +471,14 @@ public class UserProfileFragment extends Fragment {
             });
 
             radioGroupLang.setOnCheckedChangeListener((group, checkedId) -> {
-                String lang = (checkedId == R.id.rbKhmer) ? "km" : "en";
-                sharedPreferences.edit().putString("My_Lang", lang).apply();
-                setLocale(lang);
-                requireActivity().recreate();
+                String currentLang = sharedPreferences.getString("My_Lang", "en");
+                String newLang = (checkedId == R.id.rbKhmer) ? "km" : "en";
+
+                if (!currentLang.equals(newLang)) {
+                    sharedPreferences.edit().putString("My_Lang", newLang).apply();
+                    setLocale(newLang);
+                    requireActivity().recreate();
+                }
             });
 
             btnLogout.setOnClickListener(v -> {
@@ -412,76 +492,103 @@ public class UserProfileFragment extends Fragment {
     }
 
     private void toggleFollow() {
+        Log.d(TAG, "Toggle follow clicked");
+
         if (currentUserId == null || profileUser == null || userId == null) {
-            Toast.makeText(getContext(), "Unable to process follow action", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Cannot follow at this time", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Null values - currentUserId: " + currentUserId + ", profileUser: " + (profileUser != null) + ", userId: " + userId);
             return;
         }
 
-        // Prevent following yourself
-        if (currentUserId.equals(userId)) {
-            Toast.makeText(getContext(), "You cannot follow yourself", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        boolean isFollowing = profileUser.isFollowedBy(currentUserId);
+        btnFollow.setEnabled(false);
+        boolean wasFollowing = profileUser.isFollowedBy(currentUserId);
+        Log.d(TAG, "Was following: " + wasFollowing);
 
         // Update target user's followers
-        Map<String, Boolean> targetFollowers = profileUser.getFollowers();
-        if (targetFollowers == null) {
-            targetFollowers = new HashMap<>();
-        }
+        Map<String, Boolean> followers = new HashMap<>(profileUser.getFollowers());
 
-        if (isFollowing) {
-            targetFollowers.remove(currentUserId);
+        if (wasFollowing) {
+            followers.remove(currentUserId);
             profileUser.setFollowerCount(Math.max(0, profileUser.getFollowerCount() - 1));
         } else {
-            targetFollowers.put(currentUserId, true);
+            followers.put(currentUserId, true);
             profileUser.setFollowerCount(profileUser.getFollowerCount() + 1);
         }
 
-        // Update Firebase for target user
-        usersRef.child(userId).child("followers").setValue(targetFollowers);
-        usersRef.child(userId).child("followerCount").setValue(profileUser.getFollowerCount());
+        profileUser.setFollowers(followers);
 
-        // Update current user's following list
-        usersRef.child(currentUserId).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                User currentUser = snapshot.getValue(User.class);
-                if (currentUser == null) {
-                    currentUser = new User(currentUserId, "User", "");
-                }
+        // Update database
+        Map<String, Object> targetUpdates = new HashMap<>();
+        targetUpdates.put("followers", followers);
+        targetUpdates.put("followerCount", profileUser.getFollowerCount());
 
-                Map<String, Boolean> following = currentUser.getFollowing();
-                if (following == null) {
-                    following = new HashMap<>();
-                }
+        usersRef.child(userId).updateChildren(targetUpdates)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Successfully updated target user followers");
 
-                if (isFollowing) {
-                    following.remove(userId);
-                    currentUser.setFollowingCount(Math.max(0, currentUser.getFollowingCount() - 1));
-                    Toast.makeText(getContext(), "Unfollowed " + profileUser.getName(), Toast.LENGTH_SHORT).show();
-                } else {
-                    following.put(userId, true);
-                    currentUser.setFollowingCount(currentUser.getFollowingCount() + 1);
-                    Toast.makeText(getContext(), "Following " + profileUser.getName(), Toast.LENGTH_SHORT).show();
-                }
+                    // Now update current user's following
+                    usersRef.child(currentUserId).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            User currentUser = snapshot.getValue(User.class);
+                            if (currentUser == null) {
+                                FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+                                String name = "User";
+                                String email = "";
+                                if (firebaseUser != null) {
+                                    name = firebaseUser.getDisplayName() != null ?
+                                            firebaseUser.getDisplayName() : "User";
+                                    email = firebaseUser.getEmail() != null ?
+                                            firebaseUser.getEmail() : "";
+                                }
+                                currentUser = new User(currentUserId, name, email);
+                            }
 
-                usersRef.child(currentUserId).child("following").setValue(following);
-                usersRef.child(currentUserId).child("followingCount")
-                        .setValue(currentUser.getFollowingCount());
-            }
+                            Map<String, Boolean> following = new HashMap<>(currentUser.getFollowing());
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG, "Failed to update following: " + error.getMessage());
-                Toast.makeText(getContext(), "Failed to update following status", Toast.LENGTH_SHORT).show();
-            }
-        });
+                            if (wasFollowing) {
+                                following.remove(userId);
+                                currentUser.setFollowingCount(Math.max(0, currentUser.getFollowingCount() - 1));
+                            } else {
+                                following.put(userId, true);
+                                currentUser.setFollowingCount(currentUser.getFollowingCount() + 1);
+                            }
 
-        // Update UI
-        updateFollowButton();
-        displayUserInfo();
+                            currentUser.setFollowing(following);
+
+                            Map<String, Object> currentUserUpdates = new HashMap<>();
+                            currentUserUpdates.put("following", following);
+                            currentUserUpdates.put("followingCount", currentUser.getFollowingCount());
+
+                            usersRef.child(currentUserId).updateChildren(currentUserUpdates)
+                                    .addOnSuccessListener(aVoid2 -> {
+                                        btnFollow.setEnabled(true);
+                                        String message = wasFollowing ?
+                                                "Unfollowed " + profileUser.getName() :
+                                                "Following " + profileUser.getName();
+                                        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                                        Log.d(TAG, "Follow action completed successfully");
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        btnFollow.setEnabled(true);
+                                        Toast.makeText(getContext(), "Failed to update", Toast.LENGTH_SHORT).show();
+                                        Log.e(TAG, "Failed to update current user", e);
+                                    });
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            btnFollow.setEnabled(true);
+                            Toast.makeText(getContext(), "Failed to follow", Toast.LENGTH_SHORT).show();
+                            Log.e(TAG, "Database error", error.toException());
+                        }
+                    });
+                })
+                .addOnFailureListener(e -> {
+                    btnFollow.setEnabled(true);
+                    Toast.makeText(getContext(), "Failed to follow", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "Failed to update target user", e);
+                });
     }
 
     private void loadPreferences() {
@@ -501,5 +608,51 @@ public class UserProfileFragment extends Fragment {
         config.setLocale(locale);
         requireActivity().getResources().updateConfiguration(
                 config, requireActivity().getResources().getDisplayMetrics());
+    }
+
+    private void fixUserNameFromRecipes() {
+        Log.d(TAG, "Attempting to fix null username from recipes");
+        recipesRef.orderByChild("userId").equalTo(userId).limitToFirst(1)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        String username = null;
+
+                        for (DataSnapshot recipeSnapshot : dataSnapshot.getChildren()) {
+                            Recipe recipe = recipeSnapshot.getValue(Recipe.class);
+                            if (recipe != null && recipe.getUserName() != null && !recipe.getUserName().isEmpty()) {
+                                username = recipe.getUserName();
+                                Log.d(TAG, "Found username in recipe: " + username);
+                                break;
+                            }
+                        }
+
+                        if (username == null && isOwnProfile) {
+                            FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+                            if (firebaseUser != null) {
+                                if (firebaseUser.getDisplayName() != null && !firebaseUser.getDisplayName().isEmpty()) {
+                                    username = firebaseUser.getDisplayName();
+                                } else if (firebaseUser.getEmail() != null) {
+                                    username = firebaseUser.getEmail().split("@")[0];
+                                }
+                            }
+                        }
+
+                        if (username == null || username.isEmpty()) {
+                            username = "User";
+                        }
+
+                        // Update the profile name
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Log.e(TAG, "Failed to fetch recipes for username", error.toException());
+                        profileUser.setName("User");
+                        displayUserProfile();
+                        updateFollowButton();
+                    }
+                });
     }
 }

@@ -1,14 +1,15 @@
 package com.example.Recipe;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -21,13 +22,13 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class SignupActivity extends AppCompatActivity {
 
+    private static final String TAG = "SignupActivity";
+
     private EditText etName, etEmail, etPassword, etConfirmPassword;
     private Button btnSignup;
     private TextView tvLogin;
     private ProgressBar progressBar;
     private FirebaseAuth mAuth;
-
-
     private DatabaseReference databaseReference;
 
     @Override
@@ -95,12 +96,17 @@ public class SignupActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
         btnSignup.setEnabled(false);
 
+        Log.d(TAG, "Creating account with email: " + email + ", name: " + name);
+
         // Create user account
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
                         FirebaseUser user = mAuth.getCurrentUser();
                         if (user != null) {
+                            String userId = user.getUid();
+                            Log.d(TAG, "User created with UID: " + userId);
+
                             // Update display name in Firebase Auth
                             UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                                     .setDisplayName(name)
@@ -108,20 +114,20 @@ public class SignupActivity extends AppCompatActivity {
 
                             user.updateProfile(profileUpdates)
                                     .addOnSuccessListener(aVoid -> {
+                                        Log.d(TAG, "Display name updated in Auth");
                                         // Save user to database
-                                        saveUserToDatabase(user.getUid(), name, email);
+                                        saveUserToDatabase(userId, name, email);
                                     })
                                     .addOnFailureListener(e -> {
-                                        progressBar.setVisibility(View.GONE);
-                                        btnSignup.setEnabled(true);
-                                        Toast.makeText(SignupActivity.this,
-                                                "Failed to update profile: " + e.getMessage(),
-                                                Toast.LENGTH_SHORT).show();
+                                        Log.e(TAG, "Failed to update Auth profile", e);
+                                        // Still try to save to database even if Auth update fails
+                                        saveUserToDatabase(userId, name, email);
                                     });
                         }
                     } else {
                         progressBar.setVisibility(View.GONE);
                         btnSignup.setEnabled(true);
+                        Log.e(TAG, "Registration failed", task.getException());
                         Toast.makeText(SignupActivity.this, "Registration failed: " +
                                 task.getException().getMessage(), Toast.LENGTH_LONG).show();
                     }
@@ -129,12 +135,15 @@ public class SignupActivity extends AppCompatActivity {
     }
 
     private void saveUserToDatabase(String userId, String name, String email) {
+        Log.d(TAG, "Saving user to database - UID: " + userId + ", Name: " + name + ", Email: " + email);
+
         User user = new User(userId, name, email);
 
         databaseReference.child(userId).setValue(user)
                 .addOnSuccessListener(aVoid -> {
                     progressBar.setVisibility(View.GONE);
                     btnSignup.setEnabled(true);
+                    Log.d(TAG, "User successfully saved to database");
                     Toast.makeText(SignupActivity.this, "Account created successfully!",
                             Toast.LENGTH_SHORT).show();
                     navigateToMain();
@@ -142,6 +151,7 @@ public class SignupActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     progressBar.setVisibility(View.GONE);
                     btnSignup.setEnabled(true);
+                    Log.e(TAG, "Failed to save user to database", e);
                     Toast.makeText(SignupActivity.this,
                             "Account created but failed to save profile: " + e.getMessage(),
                             Toast.LENGTH_SHORT).show();
